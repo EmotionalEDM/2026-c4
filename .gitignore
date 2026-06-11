@@ -18,3 +18,5 @@ data/external_baselines/_adapter_runs/
 
 third_party/openclaw/local_service/pids/
 third_party/openclaw/local_service/smoke/
+
+backend/.venv

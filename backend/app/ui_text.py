@@ -21,13 +21,11 @@ UI_TEXT: dict = {
     "meta": {
         "title": "SkillCODER · Skill 水印与买家溯源全流程演示",
         "brand_title": "SkillCODER",
-        "brand_sub": "Skill 水印 · 黑盒识别 · 买家溯源 · 全流程演示",
+        # 三个页面视图（前端按 #hash 切换显示，无刷新）
         "nav": [
-            {"href": "#sec-intro", "label": "背景"},
-            {"href": "#sec-cases", "label": "案例"},
-            {"href": "#sec-story", "label": "演示"},
-            {"href": "#sec-verdict", "label": "裁决"},
-            {"href": "#sec-metrics", "label": "指标"},
+            {"href": "#home", "label": "首页"},
+            {"href": "#demo", "label": "演示"},
+            {"href": "#metrics", "label": "指标"},
         ],
         "conn": {
             "wait": "连接后端中…",
@@ -101,9 +99,14 @@ UI_TEXT: dict = {
         "pause": "⏸ 暂停",
         "tech_summary": "🔬 技术细节（点开查看）",
         "pip_step": "STEP",
+        # 剧场（聚焦）模式
+        "focus": "⤢ 聚焦演示",
+        "focus_exit": "退出聚焦（Esc）",
+        "focus_counter": "{n} / {total}",
+        "focus_hint": "← → 切换步骤 · Esc 退出",
     },
 
-    "footer": "SkillCODER 比赛展示系统 · 纯展示前端",
+    "footer": "SkillCODER 比赛展示系统",
 
     # bit 网格每个格子的悬浮提示（第几位）
     "bit_tooltip": "第 {i} 位",

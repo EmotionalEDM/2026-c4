@@ -67,7 +67,6 @@ boot();
 
 // 后端连接前先填好兜底文案（连接状态 + 离线提示卡），保证无后端也可读。
 function applyBootstrap() {
-  $("#conn").textContent = BOOTSTRAP.wait;
   $("#offline-title").textContent = BOOTSTRAP.offline.title;
   $("#offline-desc").textContent = BOOTSTRAP.offline.desc;
   $("#offline-url-label").textContent = BOOTSTRAP.offline.url_label;
@@ -80,8 +79,6 @@ async function boot() {
     await getJSON("/api/health");
     UI = await getJSON("/api/ui/text");
     applyStaticText();
-    $("#conn").className = "conn conn-ok";
-    $("#conn").textContent = UI.meta.conn.ok;
     $("#page").classList.remove("hidden");
     $("#offline").classList.add("hidden");
     const [cases, metrics] = await Promise.all([
@@ -90,13 +87,37 @@ async function boot() {
     ]);
     renderCases(cases);
     renderMetrics(metrics);
+    initRouter();
   } catch (e) {
-    $("#conn").className = "conn conn-bad";
-    $("#conn").textContent = (UI && UI.meta && UI.meta.conn.bad) || BOOTSTRAP.bad;
     $("#page").classList.add("hidden");
     $("#offline").classList.remove("hidden");
     console.error(e);
   }
+}
+
+/* ===================== 视图路由（单页内 #hash 切换三个页面） =====================
+ * 三个视图：home（首页/背景）· demo（案例+故事流+裁决）· metrics（指标）。
+ * 导航链接、品牌 logo、hero CTA 都通过改写 location.hash 触发，监听 hashchange
+ * 统一切换。display:none ↔ block 的切换会让视图内的入场动画重新播放。 */
+const VIEWS = ["home", "demo", "metrics"];
+function showView(name) {
+  if (!VIEWS.includes(name)) name = "home";
+  VIEWS.forEach((v) => $("#view-" + v).classList.toggle("hidden", v !== name));
+  document.querySelectorAll("#nav-links a").forEach((a) =>
+    a.classList.toggle("active", a.getAttribute("href") === "#" + name));
+  if (name !== "demo" && PLAY) stopPlay();   // 离开演示页时停掉自动播放
+  window.scrollTo({ top: 0, behavior: "auto" });
+}
+function route() { showView((location.hash || "#home").replace(/^#/, "")); }
+function initRouter() {
+  window.addEventListener("hashchange", route);
+  // 品牌 logo → 回首页（支持键盘）
+  const home = () => { location.hash = "#home"; };
+  $("#nav-home").addEventListener("click", home);
+  $("#nav-home").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); home(); }
+  });
+  route();
 }
 
 /* ===================== 用后端文案填充静态界面 ===================== */
@@ -147,6 +168,12 @@ function applyStaticText() {
   $("#btn-next").textContent = C.next;
   $("#btn-play").textContent = C.play;
   $("#tech-summary").textContent = C.tech_summary;
+
+  // 剧场（聚焦）模式（文案来自后端；符号兜底，避免内嵌中文文案）
+  $("#btn-zoom").textContent = C.focus || "⤢";
+  $("#theater-hint").textContent = C.focus_hint || "";
+  $("#theater-close").title = C.focus_exit || "";
+  $("#theater-play").textContent = C.play;
 
   // 页脚
   $("#foot-text").textContent = UI.footer;
@@ -263,20 +290,94 @@ function renderStep() {
   });
   $("#btn-prev").disabled = STEP === 0;
   $("#btn-next").disabled = STEP === CURRENT.timeline.length - 1;
+  syncTheater();
 }
 
-/* 控制条 */
-$("#btn-prev").onclick = () => { stopPlay(); if (STEP > 0) { STEP--; renderStep(); } };
-$("#btn-next").onclick = () => { stopPlay(); if (STEP < CURRENT.timeline.length - 1) { STEP++; renderStep(); } };
+/* 控制条（页面内 + 剧场模式共用） */
+function goPrev() { stopPlay(); if (CURRENT && STEP > 0) { STEP--; renderStep(); } }
+function goNext() { stopPlay(); if (CURRENT && STEP < CURRENT.timeline.length - 1) { STEP++; renderStep(); } }
+$("#btn-prev").onclick = goPrev;
+$("#btn-next").onclick = goNext;
 $("#btn-play").onclick = () => (PLAY ? stopPlay() : startPlay());
 function startPlay() {
   $("#btn-play").textContent = UI.controls.pause;
+  $("#theater-play").textContent = UI.controls.pause;
   PLAY = setInterval(() => {
     if (STEP < CURRENT.timeline.length - 1) { STEP++; renderStep(); }
     else stopPlay();
   }, 2600);
 }
-function stopPlay() { if (PLAY) clearInterval(PLAY); PLAY = null; if (UI) $("#btn-play").textContent = UI.controls.play; }
+function stopPlay() {
+  if (PLAY) clearInterval(PLAY);
+  PLAY = null;
+  if (UI) { $("#btn-play").textContent = UI.controls.play; $("#theater-play").textContent = UI.controls.play; }
+}
+
+/* ===================== 剧场（聚焦）模式 =====================
+ * 点击步骤卡（或「聚焦」按钮）放大到全屏：把 #step-stage 原节点移入
+ * #theater-body，renderStep 照常工作；退出时移回 .controls 之前的原位。
+ * 支持 ← / → 切换步骤、Esc 退出、移动端左右滑动。 */
+let IN_THEATER = false;
+function enterTheater() {
+  if (IN_THEATER || !CURRENT) return;
+  IN_THEATER = true;
+  $("#theater-body").appendChild($("#step-stage"));
+  $("#theater").classList.remove("hidden");
+  document.body.classList.add("theater-open");
+  syncTheater();
+  $("#theater-close").focus();
+}
+function exitTheater() {
+  if (!IN_THEATER) return;
+  IN_THEATER = false;
+  $("#story").insertBefore($("#step-stage"), $("#story .controls"));
+  $("#theater").classList.add("hidden");
+  document.body.classList.remove("theater-open");
+  $("#btn-zoom").focus();
+}
+function syncTheater() {
+  if (!IN_THEATER || !CURRENT) return;
+  const total = CURRENT.timeline.length;
+  $("#theater-counter").textContent =
+    fmt(UI.controls.focus_counter || "{n} / {total}", { n: STEP + 1, total });
+  const bar = $("#theater-progress");
+  bar.style.width = ((STEP + 1) / total) * 100 + "%";
+  bar.style.background = phaseOf(CURRENT.timeline[STEP].phase).color;
+  $("#theater-prev").disabled = STEP === 0;
+  $("#theater-next").disabled = STEP === total - 1;
+}
+$("#btn-zoom").onclick = (e) => { e.stopPropagation(); enterTheater(); };
+$("#theater-close").onclick = exitTheater;
+$("#theater-prev").onclick = goPrev;
+$("#theater-next").onclick = goNext;
+$("#theater-play").onclick = () => (PLAY ? stopPlay() : startPlay());
+// 点卡片空白处也可进入聚焦（避开链接/按钮/折叠/可滚动数据区与文本选择）
+$("#step-stage").addEventListener("click", (e) => {
+  if (IN_THEATER) return;
+  if (e.target.closest("a,button,summary,details,pre,table,.scroll,.bits,.diff")) return;
+  if (String(window.getSelection ? window.getSelection() : "")) return;
+  enterTheater();
+});
+// 点暗背景退出
+$("#theater").addEventListener("click", (e) => {
+  if (e.target === $("#theater") || e.target === $("#theater-body")) exitTheater();
+});
+// 键盘：← → 切换，Esc 退出
+document.addEventListener("keydown", (e) => {
+  if (!IN_THEATER) return;
+  if (e.key === "ArrowLeft") { e.preventDefault(); goPrev(); }
+  else if (e.key === "ArrowRight") { e.preventDefault(); goNext(); }
+  else if (e.key === "Escape") exitTheater();
+});
+// 移动端滑动切换
+let TOUCH_X = null;
+$("#theater-body").addEventListener("touchstart", (e) => { TOUCH_X = e.touches[0].clientX; }, { passive: true });
+$("#theater-body").addEventListener("touchend", (e) => {
+  if (TOUCH_X == null) return;
+  const dx = e.changedTouches[0].clientX - TOUCH_X;
+  TOUCH_X = null;
+  if (Math.abs(dx) > 60) (dx > 0 ? goPrev() : goNext());
+}, { passive: true });
 
 /* ===================== 8 个 visual 渲染器 ===================== */
 function renderVisual(v) {

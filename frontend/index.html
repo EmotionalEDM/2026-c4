@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
   <!-- 标题由后端文案填充（app.js: applyStaticText） -->
   <title id="doc-title">SkillCODER</title>
   <link rel="stylesheet" href="styles.css" />
@@ -11,15 +12,22 @@
 
 <!-- 顶部导航（文字内容来自后端 /api/ui/text） -->
 <header class="nav">
-  <div class="nav-brand">
-    <span class="logo">🛡️</span>
+  <div class="nav-brand" id="nav-home" role="link" tabindex="0" title="回到首页">
+    <span class="logo" aria-hidden="true">
+      <!-- 印章式盾形标志：水印「嵌入 → 验证」的视觉隐喻 -->
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+        <path d="M12 2.6 4.6 5.4v6.1c0 4.6 3.1 8 7.4 9.9 4.3-1.9 7.4-5.3 7.4-9.9V5.4L12 2.6Z"
+              stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="M8.4 12.1l2.4 2.5 4.8-5.2" stroke="currentColor" stroke-width="1.7"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
     <div>
       <div class="brand-title" id="brand-title"></div>
       <div class="brand-sub" id="brand-sub"></div>
     </div>
   </div>
   <nav class="nav-links" id="nav-links"></nav>
-  <div id="conn" class="conn conn-wait"></div>
 </header>
 
 <!-- 后端未连接时的提示 -->
@@ -37,6 +45,8 @@ bash run.sh   # 监听 http://127.0.0.1:8000</pre>
 
 <main id="page" class="hidden">
 
+  <!-- ===== 首页视图：背景介绍与价值主张 ===== -->
+  <div class="view" id="view-home">
   <!-- ① 知识背景 -->
   <section id="sec-intro" class="section hero">
     <div class="hero-inner">
@@ -44,10 +54,13 @@ bash run.sh   # 监听 http://127.0.0.1:8000</pre>
       <p class="lead" id="hero-lead"></p>
       <div class="hero-grid" id="hero-grid"></div>
       <div class="hero-flow" id="hero-flow"></div>
-      <a class="cta" id="hero-cta" href="#sec-cases"></a>
+      <a class="cta" id="hero-cta" href="#demo"></a>
     </div>
   </section>
+  </div><!-- /view-home -->
 
+  <!-- ===== 演示视图：案例选择 → 故事流 → 裁决（一条交互链，放同一页） ===== -->
+  <div class="view" id="view-demo">
   <!-- ② Case 选择台 -->
   <section id="sec-cases" class="section">
     <div class="sec-head">
@@ -77,6 +90,8 @@ bash run.sh   # 监听 http://127.0.0.1:8000</pre>
             <div class="step-title" id="step-title">—</div>
             <div class="step-phase" id="step-phase"></div>
           </div>
+          <!-- 进入剧场（聚焦）模式 -->
+          <button id="btn-zoom" class="btn-zoom"></button>
         </div>
         <p class="step-story" id="step-story"></p>
 
@@ -106,7 +121,10 @@ bash run.sh   # 监听 http://127.0.0.1:8000</pre>
     <div id="verdict" class="verdict hidden"></div>
     <p id="verdict-empty" class="sec-desc"></p>
   </section>
+  </div><!-- /view-demo -->
 
+  <!-- ===== 指标视图 ===== -->
+  <div class="view" id="view-metrics">
   <!-- ⑤ 指标总览 -->
   <section id="sec-metrics" class="section">
     <div class="sec-head">
@@ -115,12 +133,29 @@ bash run.sh   # 监听 http://127.0.0.1:8000</pre>
     </div>
     <div id="metrics" class="metrics"></div>
   </section>
+  </div><!-- /view-metrics -->
 
   <footer class="foot">
     <span id="foot-text"></span>
     <span id="foot-prov"></span>
   </footer>
 </main>
+
+<!-- 剧场（聚焦）模式：进入时 #step-stage 被移入 #theater-body，退出时移回原位 -->
+<div id="theater" class="theater hidden" role="dialog" aria-modal="true">
+  <div class="theater-progress"><i id="theater-progress"></i></div>
+  <div class="theater-bar">
+    <span class="theater-counter" id="theater-counter"></span>
+    <span class="theater-hint" id="theater-hint"></span>
+    <div class="theater-actions">
+      <button id="theater-play" class="theater-btn"></button>
+      <button id="theater-close" class="theater-btn" aria-label="Close">✕</button>
+    </div>
+  </div>
+  <button id="theater-prev" class="theater-arrow" aria-label="Previous">‹</button>
+  <div class="theater-body" id="theater-body"></div>
+  <button id="theater-next" class="theater-arrow theater-arrow-r" aria-label="Next">›</button>
+</div>
 
 <script src="config.js"></script>
 <script src="app.js"></script>
