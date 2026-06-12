@@ -41,7 +41,7 @@ STAGE_META: dict[str, dict] = {
     },
     "owner_watermark_embedded": {
         "index": 3,
-        "title": "嵌入所有者水印（Artifact-Gated Capsule）",
+        "title": "嵌入所有者水印",
         "phase": "embedding",
         "story": "系统在多个结构节点里分散写入一组自然语言条件指令。它们平时不会触发，也不影响"
                  "普通用户使用；只有当审计方发出带特定条件的验证查询时，Skill 才会输出一个内部胶囊"
@@ -52,7 +52,7 @@ STAGE_META: dict[str, dict] = {
     },
     "buyer_fingerprint_embedded": {
         "index": 4,
-        "title": "嵌入买家指纹（Controlled-Vocabulary ECC）",
+        "title": "嵌入买家指纹",
         "phase": "embedding",
         "story": "同一份 Skill 会卖给不同买家，所以只证明“这是我的 Skill”还不够，还得知道是哪一份"
                  "副本泄露了。系统为每个买家分配一串纠错码，把这串码藏进胶囊的 slot/decision 字段里。"
@@ -63,7 +63,7 @@ STAGE_META: dict[str, dict] = {
     },
     "attack_applied": {
         "index": 5,
-        "title": "攻击者复制 / 改写",
+        "title": "攻击过程",
         "phase": "deploy",
         "story": "现在模拟攻击者拿到某个买家的副本并重新部署。无攻击下副本基本原样；第一类攻击做"
                  "改写、压缩或重排；第二类攻击专门删除看起来像内部审计的条款。攻击者的限制是："

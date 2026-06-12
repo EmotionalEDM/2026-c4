@@ -11,7 +11,7 @@ CASES: list[dict] = [
         "buyer_id": "buyer_1",
         "attack": "none",
         "difficulty": "baseline",
-        "goal": "理想情况下，所有权与溯源都干净命中（基线）。",
+        "goal": "买家1+理想情况下，所有权与溯源都干净命中（基线）。",
     },
     {
         "case_id": "buyer1_attack_type1",
@@ -20,7 +20,7 @@ CASES: list[dict] = [
         "buyer_id": "buyer_1",
         "attack": "type1_rewrite",
         "difficulty": "oblivious_attack",
-        "goal": "攻击者不懂水印、只做普通改写，水印依然存活、溯源依然命中。",
+        "goal": "买家1+改写，水印依然存活、溯源依然命中。",
     },
     {
         "case_id": "buyer1_attack_type2",
@@ -29,7 +29,7 @@ CASES: list[dict] = [
         "buyer_id": "buyer_1",
         "attack": "type2_watermark_suppression",
         "difficulty": "adaptive_attack",
-        "goal": "攻击者定向删审计条款（最难场景），分数略降但仍稳定判对。",
+        "goal": "买家1+定向删审计条款（最难场景），分数略降但仍稳定判对。",
     },
     {
         "case_id": "buyer2_clean",
@@ -38,7 +38,7 @@ CASES: list[dict] = [
         "buyer_id": "buyer_2",
         "attack": "none",
         "difficulty": "baseline",
-        "goal": "换一个买家，溯源精准切到 buyer_2 而非 buyer_1，证明指纹有区分度。",
+        "goal": "买家2+理想情况下，所有权与溯源都干净命中（基线）。",
     },
     {
         "case_id": "buyer2_attack_type1",
@@ -47,7 +47,7 @@ CASES: list[dict] = [
         "buyer_id": "buyer_2",
         "attack": "type1_rewrite",
         "difficulty": "oblivious_attack",
-        "goal": "换买家+攻击双重考验，所有权与溯源仍稳定，证明泛化性。",
+        "goal": "买家2+改写，水印依然存活、溯源依然命中。",
     },
 ]
 

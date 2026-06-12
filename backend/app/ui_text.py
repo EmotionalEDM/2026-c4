@@ -19,8 +19,8 @@ UI_TEXT: dict = {
     # 站点 meta / 顶部导航
     # ------------------------------------------------------------------
     "meta": {
-        "title": "SkillCODER · Skill 水印与买家溯源全流程演示",
-        "brand_title": "SkillCODER",
+        "title": "面向大模型Agent的结构化技能版权审计与溯源平台 · Skill 水印与买家溯源模拟演示",
+        "brand_title": "面向大模型Agent的结构化技能版权审计与溯源平台",
         # 三个页面视图（前端按 #hash 切换显示，无刷新）
         "nav": [
             {"href": "#home", "label": "首页"},
@@ -49,18 +49,26 @@ UI_TEXT: dict = {
     # ------------------------------------------------------------------
     "hero": {
         "h1": "当一份 Skill 被盗走，我们如何证明并追凶？",
-        "lead": "智能体 <b>Skill</b> 不是一句提示词，而是一套包含<b>角色、工作流、约束、异常处理、示例</b>的可复用能力资产，"
-                "单价可达数千美元。但它公开、可读、可部署，因此极易被原样复制或改写转售。",
+        "lead": "智能体 <b>Skill</b> 是数千美元的数字资产，却因“可见即可复制”而极易被盗。<br/>现有水印方法失效，本平台用真实数据，讲清水印嵌入→黑盒验证→买家溯源全流程。",
         "cards": [
-            {"icon": "📈", "title": "难点一：规模长",
-             "body": "Skill 是几千 token 的长文档，传统 token 级水印信号会被稀释。"},
-            {"icon": "📖", "title": "难点二：要可读",
-             "body": "Skill 要给人看、给人改，token 级扰动会破坏可读性与实用价值。"},
-            {"icon": "✅", "title": "我们的答案：SkillCODER", "highlight": True,
-             "body": "把水印锚定在技能的<b>行为结构</b>上，而非表面词句；纯黑盒、不碰模型权重、不破坏正常功能。"},
+            {
+                "icon": "📌",
+                "title": "背景与痛点",
+                "body": "技能（Skill）作为高价值数字资产，因“可见即可复制”的特点极易被克隆转售。现有水印只能判定“是否被盗”，<b>无法追踪是谁泄露</b>。"
+            },
+            {
+                "icon": "💡",
+                "title": "核心创新",
+                "body": "🔹 <b>SkillIR</b>：结构化解析，水印锚定行为骨架<br/>🔹 <b>AGC 胶囊</b>：常态休眠，探针激活<br/>🔹 <b>CV-ECC</b>：纠错编码，精准溯源买家"
+            },
+            {
+                "icon": "📊",
+                "title": "实验验证",
+                "body": "✅ 高精度所有权判定与买家溯源<br/>✅ 攻击下依然稳健<br/>✅ 全面超越基线<br/>✅ 水印成本降低约15倍"
+            }
         ],
         "flow": ["加水印", "卖给买家", "被盗改部署", "黑盒探测", "证明所有权", "追出买家"],
-        "cta": "选择一个案例，开始演示 ↓",
+        "cta": "选择一个案例，开始演示 ↓"
     },
 
     # ------------------------------------------------------------------
@@ -69,18 +77,17 @@ UI_TEXT: dict = {
     "sections": {
         "cases": {
             "h2": "② 选择展示案例",
-            "desc": "五个真实实验场景。点击任意一张卡片，进入八步故事流演示。",
             "attack_legend": [
                 "<b>第一类攻击</b>：攻击者不知道有水印，只做保功能的同义改写 / 压缩 / 重排（盲攻击）。",
                 "<b>第二类攻击</b>：攻击者怀疑有水印，定向删除内部审计 / 交接 / 胶囊相关条款（针对性削弱，最难）。",
             ],
         },
         "story": {
-            "h2": "③ 全流程演示",
+            "h2": "③ 模拟演示",
             "sub_default": "请先在上方选择一个案例。",
         },
         "verdict": {
-            "h2": "④ 结果裁决",
+            "h2": "④ 结果判断",
             "empty": "完成一个案例的演示后，这里会给出最终判决。",
         },
         "metrics": {
@@ -106,7 +113,7 @@ UI_TEXT: dict = {
         "focus_hint": "← → 切换步骤 · Esc 退出",
     },
 
-    "footer": "SkillCODER 比赛展示系统",
+    "footer": "面向大模型Agent的结构化技能版权审计与溯源平台比赛展示系统",
 
     # bit 网格每个格子的悬浮提示（第几位）
     "bit_tooltip": "第 {i} 位",
@@ -138,13 +145,11 @@ UI_TEXT: dict = {
     "story": {
         "loading": "正在加载真实实验数据…",
         "load_failed": "加载失败：{msg}",
-        "cur_case": "当前案例：<b>{title}</b> ｜ 数据来源：{model} + {agent} {src_tag}",
-        "src_real": "真实模型输出",
+        "cur_case": "当前案例：<b>{title}</b>",
         "src_sim": "推导数据",
     },
     # visual 内部的来源小标签
     "src_tag": {
-        "real": "真实数据",
         "sim": "推导数据",
     },
 
@@ -208,7 +213,6 @@ UI_TEXT: dict = {
         },
         "probe_pair": {
             "intro": "审计方只能黑盒提问。成对发送 <b>{positive_count}</b> 正 + <b>{negative_count}</b> 负探针 {src_tag}{model_part}",
-            "model_part": " ｜真实模型：{model} + {agent}",
             "positive_title": "正探针 <span class=\"pill pill-pos\">应触发胶囊</span>",
             "negative_title": "负探针 <span class=\"pill pill-neg\">应保持沉默</span>",
             "question_label": "提问：",
@@ -286,7 +290,7 @@ UI_TEXT: dict = {
     # ⑤ 指标总览
     # ------------------------------------------------------------------
     "metrics": {
-        "compare_headers": ["指标", "SkillCODER", "PromptCARE", "PromptCOS", ""],
+        "compare_headers": ["指标", "面向大模型Agent的结构化技能版权审计与溯源平台", "PromptCARE", "PromptCOS", ""],
         "robust_headers": ["攻击类型", "买家 Top-1", "所有权准确率"],
         "ablation_headers": ["去掉的组件", "后果"],
         "run_official_title": "🟢 本次真实运行实测（{model} + {agent}）",

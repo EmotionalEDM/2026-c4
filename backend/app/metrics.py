@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 OWNER_VERIFICATION = {
-    "title": "所有权验证（Owner Verification）",
+    "title": "所有权验证",
     "metrics": [
         {"name": "准确率 Accuracy", "ours": 0.992, "promptcare": 0.896, "promptcos": 0.875,
          "higher_is_better": True},
@@ -20,7 +20,7 @@ OWNER_VERIFICATION = {
 }
 
 BUYER_ATTRIBUTION = {
-    "title": "买家溯源（Buyer Attribution · Top-1）",
+    "title": "买家溯源（Top-1）",
     "metrics": [
         {"name": "Top-1 准确率", "ours": 0.993, "promptcare": 0.705, "promptcos": 0.676,
          "higher_is_better": True},
@@ -41,7 +41,7 @@ ROBUSTNESS = {
 }
 
 FIDELITY = {
-    "title": "保真度（Fidelity · 加水印是否影响正常功能）",
+    "title": "保真度（加水印是否影响正常功能）",
     "metrics": [
         {"name": "效用下降 Utility Drop（越低越好）", "ours": 0.662,
          "promptcare": 0.700, "higher_is_better": False},
