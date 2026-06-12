@@ -20,4 +20,5 @@ third_party/openclaw/local_service/pids/
 third_party/openclaw/local_service/smoke/
 
 backend/.venv
-data
+data/evidence/gpt5mini_langchain/outputs
+.gstack/

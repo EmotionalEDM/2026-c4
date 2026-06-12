@@ -37,18 +37,20 @@ ROBUSTNESS = {
         {"name": "辅助条款删除 Aux deletion", "buyer_top1": 0.910, "owner_acc": 0.995},
         {"name": "章节重排 Reorganization", "buyer_top1": 0.998, "owner_acc": 0.999},
     ],
-    "takeaway": "四类攻击下所有权验证均≥99.5%；最难的辅助条款删除买家 Top-1 仍≥91%。",
+    "takeaway": "四类攻击下所有权验证均≥99.5%；最难的辅助条款删除买家 Top-1 仍≥91%。"
+                "（与演示页对应：第一类攻击 = 改写 / 压缩 / 章节重排，第二类攻击 = 辅助条款删除。）",
 }
 
 FIDELITY = {
     "title": "保真度（加水印是否影响正常功能）",
     "metrics": [
-        {"name": "效用下降 Utility Drop（越低越好）", "ours": 0.662,
+        {"name": "效用下降 Utility Drop（任务评分绝对降幅，非百分比；越低越好）", "ours": 0.662,
          "promptcare": 0.700, "higher_is_better": False},
         {"name": "语义一致性 Semantic Consistency", "ours": 0.727,
          "promptcare": 0.559, "higher_is_better": True},
     ],
-    "takeaway": "加水印后普通任务表现几乎无损，正常用户感知不到水印的存在。",
+    "takeaway": "注：Utility Drop 衡量加水印前后任务评分的绝对降幅（评分量纲下的差值，不是“下降 66.2%”）。"
+                "本方法降幅低于基线 PromptCARE，语义一致性显著更高，正常使用基本不受影响。",
 }
 
 ABLATION = {

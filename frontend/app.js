@@ -60,6 +60,7 @@ let UI = null;        // 后端下发的界面文案字典（/api/ui/text）
 let CURRENT = null;   // 当前案例的完整 timeline 数据
 let STEP = 0;         // 当前步骤索引 0..7
 let PLAY = null;      // 自动播放定时器
+let VERDICT_REVEALED = false; // 防剧透：走到最后一步才揭晓裁决卡
 
 /* ===================== 启动 ===================== */
 applyBootstrap();
@@ -136,16 +137,20 @@ function applyStaticText() {
   $("#offline-url-label").textContent = o.url_label;
   $("#offline-btn").textContent = o.button;
 
-  // ① hero 背景区
+  // ① hero：三屏叙事（抛问题 → 设场景 → 演示方法）
   const h = UI.hero;
   $("#hero-h1").textContent = h.h1;
+  $("#hero-h2").textContent = h.h2 || "";
   $("#hero-lead").innerHTML = h.lead;
+  renderScenario(h.scenario);
   $("#hero-grid").innerHTML = h.cards.map((c) =>
     `<div class="hero-card${c.highlight ? " hero-card-hi" : ""}">
       <div class="hc-icon">${c.icon}</div>
       <h3>${esc(c.title)}</h3>
       <p>${c.body}</p>
     </div>`).join("");
+  $("#hero-stats").innerHTML = (h.stats || []).map((s) =>
+    `<div class="stat"><div class="stat-v">${esc(s.value)}</div><div class="stat-l">${esc(s.label)}</div></div>`).join("");
   $("#hero-flow").innerHTML = h.flow.map((s, i) =>
     `<span>${esc(s)}</span>` + (i < h.flow.length - 1 ? "<i>→</i>" : "")).join("");
   $("#hero-cta").textContent = h.cta;
@@ -159,8 +164,10 @@ function applyStaticText() {
   $("#story-sub").textContent = S.story.sub_default;
   $("#verdict-h2").textContent = S.verdict.h2;
   $("#verdict-empty").textContent = S.verdict.empty;
+  if (S.verdict.cta) $("#verdict-cta").textContent = S.verdict.cta;
   $("#metrics-h2").textContent = S.metrics.h2;
   $("#metrics-desc").textContent = S.metrics.desc;
+  $("#metrics-back-cta").textContent = S.metrics.back_cta || "";
 
   // 故事流控制条
   const C = UI.controls;
@@ -177,6 +184,40 @@ function applyStaticText() {
 
   // 页脚
   $("#foot-text").textContent = UI.footer;
+}
+
+/* ===================== ① hero · 场景区（第二屏） =====================
+ * 文案与标签来自后端 hero.scenario；示意图为内联 SVG（图形属于前端，文字走后端）。
+ * 左：所有者 → 中：4 个买家 → 右：黑盒可疑服务；
+ * 买家群到黑盒之间的虚线不指明是谁——这是整个网站的悬念引擎。 */
+function renderScenario(sc) {
+  const box = $("#hero-scenario");
+  if (!sc) { box.classList.add("hidden"); return; }
+  const L = sc.diagram_labels || {};
+  const buyers = L.buyers || [];
+  const bh = 36, gap = 18, top = 12;                       // 买家框尺寸与间距
+  const midY = top + (buyers.length * bh + (buyers.length - 1) * gap) / 2;
+  const buyerBoxes = buyers.map((b, i) => {
+    const y = top + i * (bh + gap);
+    return `<rect x="306" y="${y}" width="148" height="${bh}" rx="9" class="sd-buyer"/>
+      <text x="380" y="${y + bh / 2}" class="sd-buyer-t">${esc(b)}</text>
+      <line x1="170" y1="${midY}" x2="306" y2="${y + bh / 2}" class="sd-link"/>`;
+  }).join("");
+  const svg = `
+  <svg viewBox="0 0 760 ${top * 2 + buyers.length * bh + (buyers.length - 1) * gap}" class="sd" role="img" aria-label="${esc(L.leak || "")}">
+    ${buyerBoxes}
+    <rect x="14" y="${midY - 27}" width="156" height="54" rx="12" class="sd-owner"/>
+    <text x="92" y="${midY}" class="sd-owner-t">${esc(L.owner || "")}</text>
+    <line x1="454" y1="${midY}" x2="588" y2="${midY}" class="sd-leak"/>
+    <text x="521" y="${midY - 12}" class="sd-leak-t">${esc(L.leak || "")}</text>
+    <rect x="588" y="${midY - 27}" width="158" height="54" rx="12" class="sd-suspect"/>
+    <text x="667" y="${midY}" class="sd-suspect-t">${esc(L.suspect || "")}</text>
+  </svg>`;
+  box.innerHTML = `
+    <h3 class="hs-title">${esc(sc.title)}</h3>
+    <ol class="hs-steps">${(sc.steps || []).map((s) => `<li>${s}</li>`).join("")}</ol>
+    ${svg}
+    <p class="hs-suspense">${esc(sc.suspense)}</p>`;
 }
 
 /* ===================== ② 案例卡 ===================== */
@@ -214,7 +255,12 @@ async function selectCase(caseId, card) {
   $("#story").classList.add("hidden");
   try {
     CURRENT = await getJSON("/api/demo/cases/" + caseId);
-    STEP = 0;
+    // 攻击案例（第一/二类）默认从「攻击复制」那一步（index===5）开始——
+    // 前四步与无攻击案例完全相同，评委不必重复看；前面几步仍可点进度条回看。
+    const atkId = CURRENT.attack && CURRENT.attack.id;
+    const isAttack = atkId && atkId !== "none";
+    const atkIdx = CURRENT.timeline.findIndex((s) => s.index === 5);
+    STEP = (isAttack && atkIdx >= 0) ? atkIdx : 0;
     const p = CURRENT.provenance;
     const srcTagText = p.data_source === "real"
       ? `<span class="src-tag src-real">${esc(UI.story.src_real)}</span>`
@@ -224,8 +270,10 @@ async function selectCase(caseId, card) {
     });
     $("#foot-prov").textContent = p.note || "";
     buildStepper();
+    // 防剧透：先把裁决卡置为「封存」状态，第一次走到最后一步时才揭晓，
+    // 保住八步故事流的悬念（renderStep 里触发揭晓）。
+    sealVerdict();
     renderStep();
-    renderVerdict();
     $("#story").classList.remove("hidden");
     $("#sec-story").scrollIntoView({ behavior: "smooth" });
   } catch (e) {
@@ -290,6 +338,11 @@ function renderStep() {
   });
   $("#btn-prev").disabled = STEP === 0;
   $("#btn-next").disabled = STEP === CURRENT.timeline.length - 1;
+  // 第一次走到最后一步 → 揭晓裁决卡（防剧透）
+  if (!VERDICT_REVEALED && STEP === CURRENT.timeline.length - 1) {
+    VERDICT_REVEALED = true;
+    renderVerdict();
+  }
   syncTheater();
 }
 
@@ -299,16 +352,21 @@ function goNext() { stopPlay(); if (CURRENT && STEP < CURRENT.timeline.length - 
 $("#btn-prev").onclick = goPrev;
 $("#btn-next").onclick = goNext;
 $("#btn-play").onclick = () => (PLAY ? stopPlay() : startPlay());
+// 自动播放每步停留秒数（按内容量配重：第 6 步两栏探针全文、第 8 步解码表最重）
+const STEP_SECONDS = [3, 3, 4, 4, 4, 6, 5, 6];
 function startPlay() {
   $("#btn-play").textContent = UI.controls.pause;
   $("#theater-play").textContent = UI.controls.pause;
-  PLAY = setInterval(() => {
-    if (STEP < CURRENT.timeline.length - 1) { STEP++; renderStep(); }
-    else stopPlay();
-  }, 2600);
+  const tick = () => {
+    PLAY = setTimeout(() => {
+      if (STEP < CURRENT.timeline.length - 1) { STEP++; renderStep(); tick(); }
+      else stopPlay();
+    }, (STEP_SECONDS[STEP] || 4) * 1000);
+  };
+  tick();
 }
 function stopPlay() {
-  if (PLAY) clearInterval(PLAY);
+  if (PLAY) clearTimeout(PLAY);
   PLAY = null;
   if (UI) { $("#btn-play").textContent = UI.controls.play; $("#theater-play").textContent = UI.controls.play; }
 }
@@ -481,7 +539,7 @@ const VISUAL = {
       <div class="cols2">
         <div class="vbox">
           <h4>${L.gate_title}</h4>
-          <ul class="rule-list scroll" style="max-height:300px;overflow:auto">${gate}</ul>
+          <ul class="rule-list scroll" style="max-height:360px;overflow:auto">${gate}</ul>
         </div>
         <div class="vbox">
           <h4>${L.capsule_title}</h4>
@@ -588,7 +646,8 @@ const VISUAL = {
   score_bar(v) {
     const L = UI.visual.score_bar;
     const verified = v.ownership === "verified";
-    const thr = (v.threshold * 100).toFixed(0) + "%";
+    // Score_own 是 0~1 分数，阈值按同一口径显示（0.5 而非 50%）
+    const thr = String(v.threshold);
     const off = v.official
       ? `<div class="official">${fmt(L.official, { true_ws: num(v.official.true_ws), false_ws: num(v.official.false_ws), margin: num(v.official.margin), accuracy: pct(v.official.accuracy) })}</div>`
       : "";
@@ -638,11 +697,11 @@ const VISUAL = {
     return el(`<div>
       ${decTable}
       <div class="bitlabel">${L.observed_label}</div>${bitsGrid(v.observed_bits, {}).outerHTML}
-      <div class="kv" style="margin-top:12px">${L.rank_intro}</div>
+      <div class="bitlabel" style="margin-top:12px">${L.rank_intro}</div>
       <table class="rank" style="margin-top:10px">
         <thead><tr><th>${L.th_buyer}</th><th>${L.th_errors}</th><th>${L.th_erasures}</th><th>${L.th_diff}</th></tr></thead>
         <tbody>${rows}</tbody></table>
-      <div class="kv" style="margin-top:14px;font-size:16px">
+      <div class="kv decode-summary">
         ${fmt(L.result_line, { attributed_buyer: esc(v.attributed_buyer), decode_margin: v.decode_margin ?? "—", confidence: pct(v.confidence) })}
       </div>
       <div class="kv">${fmt(L.ecc_line, { ecc_lhs: v.ecc_lhs, op: eccOk ? "<" : "≥", d_min: v.d_min })}
@@ -663,13 +722,24 @@ function bitsGrid(bits, opts) {
     const cell = document.createElement("div");
     cell.className = "bit " + cls + hi;
     cell.textContent = ch;
-    cell.title = fmt(UI.bit_tooltip, { i });
+    cell.title = fmt(UI.bit_tooltip, { i: i + 1 });   // 展示用 1 基序号，避免「第 0 位」
     wrap.appendChild(cell);
   });
   return wrap;
 }
 
 /* ===================== ④ 裁决卡 ===================== */
+// 封存状态：隐藏裁决卡与 CTA，提示语换成「看完八步后揭晓」
+function sealVerdict() {
+  VERDICT_REVEALED = false;
+  $("#verdict").classList.add("hidden");
+  const cta = $("#verdict-cta");
+  if (cta) cta.setAttribute("hidden", "");
+  const empty = $("#verdict-empty");
+  empty.classList.remove("hidden");
+  empty.textContent = UI.sections.verdict.sealed || UI.sections.verdict.empty;
+}
+
 function renderVerdict() {
   const s = CURRENT.summary, p = CURRENT.provenance;
   const L = UI.verdict;
@@ -683,14 +753,14 @@ function renderVerdict() {
       <h3>${fmt(L.title, { title: esc(CURRENT.title) })}</h3>
       <div class="cols2">
         <div>
-          <div class="kv">${L.ownership_label}</div>
-          <div class="verdict-stat ${okOwn ? "ok" : "bad"}">${okOwn ? L.ownership_ok : L.ownership_bad}</div>
+          <div class="verdict-cap">${L.ownership_label}</div>
           <div class="kv">${fmt(L.ownership_stats, { true_ws: num(s.true_ws), false_ws: num(s.false_ws), margin: num(s.margin) })}</div>
+          <div class="verdict-stat ${okOwn ? "ok" : "bad"}">${okOwn ? L.ownership_ok : L.ownership_bad}</div>
         </div>
         <div>
-          <div class="kv">${L.attribution_label}</div>
-          <div class="verdict-stat ${okBuy ? "ok" : "bad"}">${fmt(L.attribution_value, { attributed_buyer: esc(s.attributed_buyer) })}</div>
+          <div class="verdict-cap">${L.attribution_label}</div>
           <div class="kv">${fmt(L.attribution_stats, { confidence: pct(s.confidence), errors: s.errors, erasures: s.erasures, decode_margin: s.decode_margin ?? "—" })}</div>
+          <div class="verdict-stat ${okBuy ? "ok" : "bad"}">${fmt(L.attribution_value, { attributed_buyer: esc(s.attributed_buyer) })}</div>
         </div>
       </div>
     </div>
@@ -702,6 +772,9 @@ function renderVerdict() {
     <div class="vcard"><h3>${L.source_title}</h3>
       <div class="verdict-stat" style="font-size:18px">${p.data_source === "real" ? L.source_real : L.source_sim}</div>
       <div class="kv">${esc(p.model || "")} ${p.agent ? "+ " + esc(p.agent) : ""}</div></div>`;
+  // 看完单案例裁决后，给一条「顺流」入口直达指标页（不依赖右上角导航）
+  const cta = $("#verdict-cta");
+  if (cta) cta.removeAttribute("hidden");
 }
 
 /* ===================== ⑤ 指标总览 ===================== */

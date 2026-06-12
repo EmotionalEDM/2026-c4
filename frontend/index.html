@@ -50,9 +50,15 @@ bash run.sh   # 监听 http://127.0.0.1:8000</pre>
   <!-- ① 知识背景 -->
   <section id="sec-intro" class="section hero">
     <div class="hero-inner">
+      <!-- 第一屏 · 抛问题 -->
       <h1 id="hero-h1"></h1>
+      <p class="hero-q" id="hero-h2"></p>
       <p class="lead" id="hero-lead"></p>
+      <!-- 第二屏 · 设场景（文案与标签来自后端 hero.scenario，示意图为内联 SVG） -->
+      <div class="hero-scenario" id="hero-scenario"></div>
+      <!-- 第三屏 · 演示方法：三卡（核心创新）+ 大数字条（实验验证）+ 流程胶囊 + CTA -->
       <div class="hero-grid" id="hero-grid"></div>
+      <div class="hero-stats" id="hero-stats"></div>
       <div class="hero-flow" id="hero-flow"></div>
       <a class="cta" id="hero-cta" href="#demo"></a>
     </div>
@@ -120,6 +126,8 @@ bash run.sh   # 监听 http://127.0.0.1:8000</pre>
     <div class="sec-head"><h2 id="verdict-h2"></h2></div>
     <div id="verdict" class="verdict hidden"></div>
     <p id="verdict-empty" class="sec-desc"></p>
+    <!-- 看完裁决 → 顺流进入指标页（文案来自后端 sections.verdict.cta） -->
+    <div class="verdict-cta-wrap"><a class="cta" id="verdict-cta" href="#metrics" hidden></a></div>
   </section>
   </div><!-- /view-demo -->
 
@@ -132,6 +140,8 @@ bash run.sh   # 监听 http://127.0.0.1:8000</pre>
       <p class="sec-desc" id="metrics-desc"></p>
     </div>
     <div id="metrics" class="metrics"></div>
+    <!-- 看完指标 → 回到演示换案例（与裁决区 CTA 形成闭环，文案来自后端 sections.metrics.back_cta） -->
+    <div class="metrics-cta-wrap"><a class="cta" id="metrics-back-cta" href="#demo"></a></div>
   </section>
   </div><!-- /view-metrics -->
 
