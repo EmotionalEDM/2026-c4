@@ -1,31 +1,16 @@
-"""Vercel serverless entrypoint — wraps FastAPI with Mangum (required for Vercel serverless).
+"""Vercel serverless entrypoint — wraps the full FastAPI backend with Mangum.
 
-The rewrite /api/(.*) → /api/index sends all API calls here.
-Mangum provides the handler() function Vercel's Python runtime expects.
+All /api/* requests are rewritten to this handler by vercel.json.
 """
 import sys
 from pathlib import Path
 
+# Ensure the project root is on sys.path so 'backend.app' imports resolve
 _project_root = str(Path(__file__).resolve().parent.parent)
-sys.path.insert(0, _project_root)
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
 
-try:
-    from mangum import Mangum
-    from backend.app.main import app as _app
-    handler = Mangum(_app, lifespan="off")
-except Exception as e:
-    import traceback
-    from fastapi import FastAPI
-    from fastapi.responses import PlainTextResponse
-    from mangum import Mangum
+from mangum import Mangum
+from backend.app.main import app
 
-    _app = FastAPI()
-
-    @_app.get("/{path:path}")
-    def debug(path: str):
-        return PlainTextResponse(
-            f"IMPORT ERROR: {e}\n\n{traceback.format_exc()}",
-            status_code=500,
-        )
-
-    handler = Mangum(_app, lifespan="off")
+handler = Mangum(app)
