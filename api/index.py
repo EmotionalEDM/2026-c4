@@ -1,14 +1,24 @@
-"""Vercel serverless entrypoint — exposes the full FastAPI backend as ASGI.
-
-All requests are rewritten to this handler by vercel.json.
-Vercel Python runtime natively detects and serves ASGI applications.
-"""
+"""Vercel serverless entrypoint — diagnostic + full FastAPI backend."""
 import sys
 from pathlib import Path
 
-# Ensure the project root is on sys.path so 'backend.app' imports resolve
 _project_root = str(Path(__file__).resolve().parent.parent)
-if _project_root not in sys.path:
-    sys.path.insert(0, _project_root)
+sys.path.insert(0, _project_root)
 
-from backend.app.main import app
+# Try importing the full backend; if it fails, expose the error for debugging
+try:
+    from backend.app.main import app as _app
+    app = _app  # native ASGI — Vercel detects this automatically
+except Exception as e:
+    import traceback
+    from fastapi import FastAPI
+    from fastapi.responses import PlainTextResponse
+
+    app = FastAPI()
+
+    @app.get("/{path:path}")
+    def debug(path: str):
+        return PlainTextResponse(
+            f"IMPORT ERROR: {e}\n\n{traceback.format_exc()}",
+            status_code=500,
+        )

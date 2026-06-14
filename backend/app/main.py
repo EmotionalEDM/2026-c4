@@ -226,9 +226,9 @@ def metrics_overview():
 
 
 # ---------------------------------------------------------------------------
-# 前端静态托管：Vercel 上所有非 /api/* 请求由 FastAPI 直接返回静态文件。
-# 本地开发：访问 http://127.0.0.1:8000/ 即为前端页面。
+# 前端静态托管（本地开发）：backend 启动后访问 /ui 即为前端页面
+# Vercel 上由平台直接托管 frontend/ 目录，不经过此挂载。
 # ---------------------------------------------------------------------------
 _FRONTEND_DIR = Path(__file__).resolve().parents[2] / "frontend"
 if _FRONTEND_DIR.exists():
-    app.mount("/", StaticFiles(directory=str(_FRONTEND_DIR), html=True), name="frontend")
+    app.mount("/ui", StaticFiles(directory=str(_FRONTEND_DIR), html=True), name="ui")
