@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 OWNER_VERIFICATION = {
-    "title": "所有权验证",
+    "title": "所有权确权",
     "metrics": [
         {"name": "准确率 Accuracy", "ours": 0.992, "promptcare": 0.896, "promptcos": 0.875,
          "higher_is_better": True},
@@ -16,7 +16,7 @@ OWNER_VERIFICATION = {
         {"name": "Margin", "ours": 0.956, "promptcare": 0.735, "promptcos": 0.691,
          "higher_is_better": True},
     ],
-    "takeaway": "本方法平均所有权验证准确率 99.2%，Margin 0.956，全面优于两个 prompt 级基线。",
+    "takeaway": "本方法平均所有权确权准确率 99.2%，Margin 0.956，全面优于两个 prompt 级基线。",
 }
 
 BUYER_ATTRIBUTION = {
@@ -37,7 +37,7 @@ ROBUSTNESS = {
         {"name": "辅助条款删除 Aux deletion", "buyer_top1": 0.910, "owner_acc": 0.995},
         {"name": "章节重排 Reorganization", "buyer_top1": 0.998, "owner_acc": 0.998},
     ],
-    "takeaway": "四类攻击下所有权验证均≥99.5%；最难的辅助条款删除授权副本持有方 Top-1 仍≥91%。"
+    "takeaway": "四类攻击下所有权确权均≥99.5%；最难的辅助条款删除授权副本持有方 Top-1 仍≥91%。"
                 "（与演示页对应：第一类攻击 = 改写 / 压缩 / 章节重排，第二类攻击 = 辅助条款删除。）",
 }
 
@@ -85,7 +85,7 @@ def _run_official() -> dict | None:
         "buyer_attribution": rows_of("buyer_attribution"),
         "robustness": rows_of("robustness"),
         "fidelity": rows_of("fidelity"),
-        "note": "以上为本次展示所用真实运行的官方指标（按域/攻击列出），与整体汇总方向一致。",
+        "note": "以上为本次展示所用真实运行的实验指标（按域/攻击列出），与整体汇总方向一致。",
     }
 
 

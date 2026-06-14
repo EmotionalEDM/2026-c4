@@ -114,7 +114,7 @@ UI_TEXT: dict = {
             "sub_default": "请先在上方选择一个案例。",
         },
         "verdict": {
-            "h2": "结果裁决",
+            "h2": "结果判断",
             "empty": "完成一个案例的演示后，这里会给出最终判决。",
             "sealed": "⏳ 判决书已封存——看完八步演示后自动揭晓。",
             "cta": "查看整体实验指标 →",
@@ -249,7 +249,7 @@ UI_TEXT: dict = {
             "token_focus_line": "词槽候选词 token = <code>{token}</code> → 比特 <b>{bit}</b> ｜ 位置：{where_to_find}",
         },
         "score_bar": {
-            "official": "📊 与官方指标对照：True-WS <b>{true_ws}</b> ｜ False-WS <b>{false_ws}</b> ｜ Margin <b>{margin}</b> ｜ 准确率 <b>{accuracy}</b>",
+            "official": "📊 与实验指标对照：True-WS <b>{true_ws}</b> ｜ False-WS <b>{false_ws}</b> ｜ Margin <b>{margin}</b> ｜ 准确率 <b>{accuracy}</b>",
             "formula": "公式：<code>{formula}</code>",
             "true_ws_label": "True-WS（匹配核验查询审计回执得分） = {value}",
             "false_ws_label": "False-WS（缺项对照查询误触发） = {value}",
@@ -262,7 +262,7 @@ UI_TEXT: dict = {
             "verdict_prefix": "⚖ ",
         },
         "decode_grid": {
-            "official": "📊 与官方指标对照：Top-1 <b>{top1}</b> ｜ Top-3 <b>{top3}</b> ｜ 擦除率 <b>{erasure_rate}</b>",
+            "official": "📊 与实验指标对照：Top-1 <b>{top1}</b> ｜ Top-3 <b>{top3}</b> ｜ 擦除率 <b>{erasure_rate}</b>",
             "badge_hit": "命中",
             "exact_match": "（完全吻合）",
             "status_matched": "✅ 命中",

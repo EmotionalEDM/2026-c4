@@ -16,7 +16,7 @@ from . import attacks, capsule, codebook, config, data_access, evidence
 
 
 def owner_score(skill_id: str, buyer_id: str, attack_id: str) -> dict:
-    """计算所有权验证分数。
+    """计算所有权确权分数。
 
     优先使用真实实验输出（evidence）：对真实匹配核验查询/缺项对照查询输出逐条打分得 True-WS/False-WS。
     若 evidence 不可用，退回基于 examples.md 标准审计回执 + 确定性攻击模型的推导值。

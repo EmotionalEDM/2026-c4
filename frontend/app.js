@@ -800,7 +800,7 @@ function renderMetrics(m) {
   box.appendChild(el(`<div class="mblock"><h3>${esc(ab.title)}</h3><p class="take">${esc(ab.takeaway)}</p>
     <table class="mtable"><thead><tr><th>${M.ablation_headers[0]}</th><th>${M.ablation_headers[1]}</th></tr></thead><tbody>${rows}</tbody></table></div>`));
 
-  // 本次真实运行官方指标
+  // 本次真实运行实验指标
   if (m.run_official) {
     const ro = m.run_official;
     const eff = (ro.effectiveness_distinctiveness || []).filter((r) => r.domain !== "__avg__");

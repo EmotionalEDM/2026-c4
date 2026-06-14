@@ -187,7 +187,7 @@ def split_owner_and_buyer_capsules(skill_id: str, buyer_id: str):
     """把审计回执分成「所有者验证标签(owner_0x)」与「买家指纹 token」两组。
 
     返回 (owner_capsules, buyer_capsules)。
-    - owner_capsules: judgment 形如 owner_00..owner_07，用于所有权验证。
+    - owner_capsules: judgment 形如 owner_00..owner_07，用于所有权确权。
     - buyer_capsules: 其余 32 个词槽候选词，构成授权副本的 32 位指纹。
     """
     caps = load_buyer_capsules(skill_id, buyer_id)
@@ -212,5 +212,5 @@ def load_evidence_outputs(rel_path: str) -> list[dict[str, Any]]:
 
 
 def load_evidence_result(name: str) -> Any:
-    """读取一个官方指标文件，例如 'effectiveness_distinctiveness'。"""
+    """读取一个实验指标文件，例如 'effectiveness_distinctiveness'。"""
     return _read_json(config.EVIDENCE_RESULTS_DIR / f"{name}.json")

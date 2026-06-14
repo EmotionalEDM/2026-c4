@@ -244,7 +244,7 @@ def _visual_ownership(owner: dict) -> dict[str, Any]:
         "official": owner.get("official"),
         "explain_score": t["explain_score"],
         "explain_why": t["explain_why"],
-        "verdict": "所有权验证成立：可疑服务表现出 隐式审计支路副本的正负探针不对称。"
+        "verdict": "所有权确权成立：可疑服务表现出 隐式审计支路副本的正负探针不对称。"
                    if owner["ownership"] == "verified" else "所有权未成立。",
     }
 
@@ -332,7 +332,7 @@ def build_timeline(case_id: str) -> dict[str, Any]:
             "agent": config.EVIDENCE_AGENT if evidence.available() else None,
             "run_tag": config.EVIDENCE_RUN if evidence.available() else None,
             "note": ("步骤 6–8 的探针响应、所有权分数与买家解码均来自真实模型输出，"
-                     "并与该运行的官方指标交叉印证。"
+                     "并与该运行的实验指标交叉印证。"
                      if evidence.available() else
                      "未检测到真实 evidence，步骤 6–8 使用基于标准审计回执的推导值。"),
         },

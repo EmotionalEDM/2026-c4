@@ -6,7 +6,7 @@
   - 所有权：对匹配核验查询输出（应触发审计回执）与缺项对照查询输出（应保持沉默）分别打分，得 True-WS / False-WS。
   - 买家溯源：从买家验证输出里按 anchor_idx 还原 32 位观测码字，与码本比对解码。
 
-同时读取该运行 results/official_metrics 下的官方指标，用于和“从原始输出现算”的结果互相印证。
+同时读取该运行 results/official_metrics 下的实验指标，用于和”从原始输出现算”的结果互相印证。
 """
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ ATTACK_FILE_TOKEN = {
     "type2_watermark_suppression": "aux_deletion",
 }
 
-# 官方指标里 attack 字段的写法
+# 实验指标里 attack 字段的写法
 ATTACK_OFFICIAL_NAME = {
     "none": "no attack",
     "type1_rewrite": "paraphrase",
@@ -197,7 +197,7 @@ def real_buyer_decode(skill_id: str, buyer_id: str, attack_id: str) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# 官方指标（results/official_metrics）
+# 实验指标（results/official_metrics）
 # ---------------------------------------------------------------------------
 
 
