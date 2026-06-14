@@ -1,0 +1,5 @@
+# Vercel deployment dependencies (root-level, auto-detected by Vercel Python runtime)
+fastapi>=0.110
+uvicorn[standard]>=0.27
+pyyaml>=6.0
+mangum>=0.17
