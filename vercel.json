@@ -1,9 +1,6 @@
 {
-  "experimentalServices": {
-    "backend": {
-      "entrypoint": "backend/app/main.py",
-      "routePrefix": "/api",
-      "framework": "fastapi"
-    }
-  }
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/api/index" },
+    { "source": "/:path*", "destination": "/frontend/:path*" }
+  ]
 }
