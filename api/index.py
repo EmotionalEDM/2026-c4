@@ -1,7 +1,7 @@
-"""Vercel serverless entrypoint — wraps the full FastAPI backend with Mangum.
+"""Vercel serverless entrypoint — exposes the full FastAPI backend as ASGI.
 
-All /api/* requests are rewritten to this handler by vercel.json.
-Mangum ensures the original request path is preserved through Vercel's rewrite layer.
+All requests are rewritten to this handler by vercel.json.
+Vercel Python runtime natively detects and serves ASGI applications.
 """
 import sys
 from pathlib import Path
@@ -11,7 +11,4 @@ _project_root = str(Path(__file__).resolve().parent.parent)
 if _project_root not in sys.path:
     sys.path.insert(0, _project_root)
 
-from mangum import Mangum
 from backend.app.main import app
-
-handler = Mangum(app, lifespan="off")
