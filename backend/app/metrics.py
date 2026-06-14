@@ -16,28 +16,28 @@ OWNER_VERIFICATION = {
         {"name": "Margin", "ours": 0.956, "promptcare": 0.735, "promptcos": 0.691,
          "higher_is_better": True},
     ],
-    "takeaway": "SkillCODER 平均所有权验证准确率 99.2%，Margin 0.956，全面优于两个 prompt 级基线。",
+    "takeaway": "本方法平均所有权验证准确率 99.2%，Margin 0.956，全面优于两个 prompt 级基线。",
 }
 
 BUYER_ATTRIBUTION = {
-    "title": "买家溯源（Top-1）",
+    "title": "泄露源定位（Top-1）",
     "metrics": [
         {"name": "Top-1 准确率", "ours": 0.993, "promptcare": 0.705, "promptcos": 0.676,
          "higher_is_better": True},
     ],
-    "takeaway": "买家 Top-1 溯源准确率 99.3%，远高于基线（70.5% / 67.6%），"
-                "说明受控词编码携带了足够的买家专属信息。",
+    "takeaway": "授权副本持有方 Top-1 溯源准确率 99.3%，远高于基线（70.5% / 67.6%），"
+                "说明词槽候选词编码携带了足够的授权副本专属信息。",
 }
 
 ROBUSTNESS = {
-    "title": "鲁棒性（四类盲攻击下的买家 Top-1）",
+    "title": "鲁棒性（四类盲攻击下的授权副本持有方 Top-1）",
     "metrics": [
-        {"name": "改写 Paraphrase", "buyer_top1": 0.976, "owner_acc": 0.997},
-        {"name": "压缩 Compression", "buyer_top1": 0.996, "owner_acc": 0.998},
+        {"name": "改写 Paraphrase", "buyer_top1": 0.976, "owner_acc": 0.998},
+        {"name": "压缩 Compression", "buyer_top1": 0.996, "owner_acc": 0.999},
         {"name": "辅助条款删除 Aux deletion", "buyer_top1": 0.910, "owner_acc": 0.995},
-        {"name": "章节重排 Reorganization", "buyer_top1": 0.998, "owner_acc": 0.999},
+        {"name": "章节重排 Reorganization", "buyer_top1": 0.998, "owner_acc": 0.998},
     ],
-    "takeaway": "四类攻击下所有权验证均≥99.5%；最难的辅助条款删除买家 Top-1 仍≥91%。"
+    "takeaway": "四类攻击下所有权验证均≥99.5%；最难的辅助条款删除授权副本持有方 Top-1 仍≥91%。"
                 "（与演示页对应：第一类攻击 = 改写 / 压缩 / 章节重排，第二类攻击 = 辅助条款删除。）",
 }
 
@@ -56,10 +56,12 @@ FIDELITY = {
 ABLATION = {
     "title": "消融实验（每个设计是否真的必要）",
     "items": [
-        {"remove": "去掉 AGC 胶囊", "effect": "买家 Top-1 几乎崩溃"},
-        {"remove": "去掉买家纠错码", "effect": "完全无法追踪买家"},
-        {"remove": "去掉受控词表", "effect": "token 不稳定，买家溯源崩溃"},
-        {"remove": "去掉验证示例", "effect": "胶囊触发不稳定"},
+        {"remove": "去掉隐式审计支路", "effect": "SAR 主载体缺失，确权与定位同时崩溃"},
+        {"remove": "去掉缺项对照查询", "effect": "缺少对照会削弱码位恢复稳定性"},
+        {"remove": "去掉授权副本纠错码", "effect": "无法进行授权对象区分"},
+        {"remove": "去掉词槽候选词表", "effect": "自由文本无法稳定还原比特"},
+        {"remove": "去掉攻击质量筛选", "effect": "对抗场景下可解码性下降"},
+        {"remove": "去掉验证示例", "effect": "示例对 SAR 稳定触发十分关键"},
     ],
     "takeaway": "去掉任一核心组件性能都明显下降，证明每个设计都是必要的，而非摆设。",
 }

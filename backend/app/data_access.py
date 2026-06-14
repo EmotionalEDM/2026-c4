@@ -2,10 +2,10 @@
 
 涉及的真实数据：
   - data/skills_raw/<skill>/                原始未加水印 Skill
-  - data/skills_watermarked/<skill>/        加了所有者水印的 Skill
+  - data/skills_watermarked/<skill>/        写入所有权凭证的 Skill
   - data/skills_buyer/<skill>__buyer_N/     各买家专属副本（含指纹）
-  - data/queries/<skill>_verification.json          32 条正探针
-  - data/queries/<skill>_negative_verification.json 32 条负探针
+  - data/queries/<skill>_verification.json          32 条匹配核验查询
+  - data/queries/<skill>_negative_verification.json 32 条缺项对照查询
   - data/queries/<skill>_normal.json                普通任务查询
 
 本模块不做任何水印/攻击/推理计算，只负责把磁盘上的实验产物读进内存。
@@ -36,7 +36,7 @@ def _read_json(path: Path) -> Any:
 
 
 # ---------------------------------------------------------------------------
-# Skill 读取（原始 / 所有者水印 / 买家副本）
+# Skill 读取（原始 / 所有权凭证 / 授权副本）
 # ---------------------------------------------------------------------------
 
 _SKILL_FILES = ["SKILL.md", "reference.md", "examples.md", "verification_mode.md"]
@@ -68,7 +68,7 @@ def load_buyer_skill(skill_id: str, buyer_id: str) -> dict[str, Any]:
 
 
 def list_buyers(skill_id: str) -> list[str]:
-    """列出某 skill 拥有的全部买家（如 buyer_1 .. buyer_8）。"""
+    """列出某 skill 拥有的全部买家（如 buyer1 .. buyer_8）。"""
     out = []
     prefix = f"{skill_id}__"
     if config.SKILLS_BUYER_DIR.exists():
@@ -86,10 +86,10 @@ def _natural_sort(items: list[str]) -> list[str]:
 
 
 # ---------------------------------------------------------------------------
-# Skill 章节切分（用于「第 2 步：SkillIR 结构化」可视化）
+# Skill 章节切分（用于「第 2 步：技能行为图谱 结构化」可视化）
 # ---------------------------------------------------------------------------
 
-# 把 Markdown 标题粗映射到方法 SkillIR 的六类节点类型。
+# 把 Markdown 标题粗映射到方法 技能行为图谱 的六类节点类型。
 _SECTION_TYPE_HINTS = [
     (r"role|persona|identity|overview|coordinat", "role"),
     (r"workflow|step|procedure|process", "workflow_step"),
@@ -148,23 +148,23 @@ def load_normal_queries(skill_id: str) -> list[dict[str, Any]]:
 
 
 # ---------------------------------------------------------------------------
-# 从买家 examples.md 中抽取“胶囊输出”（这是溯源的真实 ground-truth 数据）
+# 从授权副本 examples.md 中抽取“胶囊输出”（这是溯源的真实 ground-truth 数据）
 # ---------------------------------------------------------------------------
 
 # 抓取 ```yaml ... ``` 围栏代码块
 _YAML_BLOCK_RE = re.compile(r"```ya?ml\s*(.*?)```", re.DOTALL | re.IGNORECASE)
-# 受控词 token 兼容两套 schema：decision.judgment（judgment:）与 labels.token（token:）
+# 词槽候选词 token 兼容两套 schema：decision.judgment（judgment:）与 labels.token（token:）
 _JUDGMENT_RE = re.compile(r"(?:judgment|token):\s*([A-Za-z0-9_]+)")
 _AXIS_RE = re.compile(r"axis:\s*(.+)")
 
 
 @functools.lru_cache(maxsize=256)
 def load_buyer_capsules(skill_id: str, buyer_id: str) -> list[dict[str, Any]]:
-    """解析买家 examples.md 中所有 internal_capsule，返回有序列表。
+    """解析授权副本 examples.md 中所有 SAR，返回有序列表。
 
     每条记录：{order, raw_yaml, judgment, axis}
-    其中 judgment 即 decision.judgment 受控词（owner_0x 或买家指纹 token）。
-    这些是“一个忠实水印副本在对应探针下应当输出的胶囊”，作为展示用的模型输出基准。
+    其中 judgment 即 decision.judgment 词槽候选词（owner_0x 或买家指纹 token）。
+    这些是“一个忠实水印副本在对应探针下应当输出的审计回执”，作为展示用的模型输出基准。
     """
     skill = load_buyer_skill(skill_id, buyer_id)
     text = skill["files"].get("examples.md", "")
@@ -184,11 +184,11 @@ def load_buyer_capsules(skill_id: str, buyer_id: str) -> list[dict[str, Any]]:
 
 
 def split_owner_and_buyer_capsules(skill_id: str, buyer_id: str):
-    """把胶囊分成「所有者验证标签(owner_0x)」与「买家指纹 token」两组。
+    """把审计回执分成「所有者验证标签(owner_0x)」与「买家指纹 token」两组。
 
     返回 (owner_capsules, buyer_capsules)。
     - owner_capsules: judgment 形如 owner_00..owner_07，用于所有权验证。
-    - buyer_capsules: 其余 32 个受控词，构成买家的 32 位指纹。
+    - buyer_capsules: 其余 32 个词槽候选词，构成授权副本的 32 位指纹。
     """
     caps = load_buyer_capsules(skill_id, buyer_id)
     owner = [c for c in caps if c["judgment"] and re.fullmatch(r"owner_\d+", c["judgment"])]
@@ -205,7 +205,7 @@ def load_evidence_outputs(rel_path: str) -> list[dict[str, Any]]:
     """读取一个真实输出文件（list of {query, output, meta, skill_path}）。
 
     rel_path 相对于 EVIDENCE_OUTPUTS_DIR，例如
-    'buyer_verification/code_review__buyer_1__verification.json'。
+    'buyer_verification/code_review__buyer1__verification.json'。
     """
     data = _read_json(config.EVIDENCE_OUTPUTS_DIR / rel_path)
     return data if isinstance(data, list) else []

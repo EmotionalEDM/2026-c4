@@ -19,10 +19,10 @@ UI_TEXT: dict = {
     # 站点 meta / 顶部导航
     # ------------------------------------------------------------------
     "meta": {
-        "title": "SkillCODER · 面向大模型Agent的结构化技能版权审计与溯源平台 · 全流程演示",
-        # 导航品牌位：主标题用短名，全名放副标题（避免 22 字长名压垮窄屏导航）
-        "brand_title": "SkillCODER",
-        "brand_sub": "面向大模型Agent的结构化技能版权审计与溯源平台",
+        "title": "面向智能体技能的版权审计与溯源平台 · 全流程演示",
+        # 导航品牌位：主标题用平台全名
+        "brand_title": "面向智能体技能的版权审计与溯源平台",
+        "brand_sub": "",
         # 三个页面视图（前端按 #hash 切换显示，无刷新）
         "nav": [
             {"href": "#home", "label": "首页"},
@@ -49,20 +49,20 @@ UI_TEXT: dict = {
         "h1": "你花三个月打磨的 Skill，上架两周就出现了盗版。",
         "h2": "你能证明它是你的吗？能找出是谁泄露的吗？",
         "lead": "智能体 <b>Skill</b> 是高价值数字资产，却因“可见即可复制”而极易被克隆转售。<br/>"
-                "现有 prompt 级水印最多告诉你“确实被盗了”——但<b>追不到是哪个买家泄露的</b>。",
+                "现有 prompt 级水印最多告诉你“确实被盗了”——但<b>追不到是哪个授权副本持有方泄露的</b>。",
         # —— 第二屏 · 设场景（首页的悬念引擎） ——
         "scenario": {
             "title": "一个追查场景",
             "steps": [
-                "你把 <b>code_review</b> Skill 卖给了 <b>4 个买家</b>。",
+                "你把 <b>code_review</b> Skill 分发给 <b>4 个授权副本持有方</b>。",
                 "某天，市场上出现一个<b>可疑服务</b>，行为和你的 Skill 一模一样。",
                 "你看不到它的内部——只能像普通用户一样，<b>黑盒</b>地向它提问。",
             ],
-            "suspense": "只靠提问，我们能证明它是你的、并指认出泄露的买家。往下看 ↓",
+            "suspense": "只靠提问，我们能证明它是你的、并指认出泄露的授权副本持有方。",
             # 示意图（内联 SVG 由前端绘制，文字标签走这里）
             "diagram_labels": {
                 "owner": "你（所有者）",
-                "buyers": ["buyer_1", "buyer_2", "buyer_3", "buyer_4"],
+                "buyers": ["buyer1", "buyer2", "buyer3", "buyer4"],
                 "suspect": "可疑服务（黑盒）",
                 "leak": "谁泄露的？",
             },
@@ -71,28 +71,28 @@ UI_TEXT: dict = {
         "cards": [
             {
                 "icon": "🧩",
-                "title": "SkillIR",
+                "title": "技能行为图谱",
                 "body": "结构化解析：水印锚定在 Skill 的行为骨架上，而非表面词句。"
             },
             {
                 "icon": "🧬",
-                "title": "AGC 胶囊",
+                "title": "隐式审计支路",
                 "body": "常态休眠、探针激活：普通用户毫无感知，审计方一问便知。"
             },
             {
                 "icon": "🎯",
-                "title": "CV-ECC",
-                "body": "纠错编码买家指纹：即使被改写删减，仍能精准溯源到买家。"
+                "title": "词槽纠错指纹",
+                "body": "纠错编码授权副本指纹：即使被改写删减，仍能精准溯源到授权副本持有方。"
             }
         ],
         # 实验验证 stat strip（大数字条）
         "stats": [
             {"value": "99.2%", "label": "所有权判定准确率"},
-            {"value": "99.3%", "label": "买家溯源 Top-1 准确率"},
-            {"value": "1/15", "label": "水印开销仅为基线水平"},
+            {"value": "99.3%", "label": "泄露源定位 Top-1 准确率"},
+            {"value": "1/15", "label": "嵌入计算开销仅为基线的 1/15"},
         ],
-        "flow": ["加水印", "卖给买家", "被盗改部署", "黑盒探测", "证明所有权", "追出买家"],
-        "cta": "进入演示：亲眼看完追查这名买家的 8 步 →"
+        "flow": ["加水印", "分发给授权副本持有方", "被盗改部署", "黑盒探测", "证明所有权", "追出授权副本持有方"],
+        "cta": "进入演示 →"
     },
 
     # ------------------------------------------------------------------
@@ -102,10 +102,10 @@ UI_TEXT: dict = {
         "cases": {
             "h2": "选择展示案例",
             "desc": "五个案例全部基于真实模型输出：Buyer 1 覆盖无攻击 / 第一类 / 第二类三种处理方式，"
-                    "Buyer 2 覆盖两种。点击任意卡片进入八步演示。",
+                    "Buyer 2 覆盖两种。点击任意卡片进入演示。",
             "attack_legend": [
                 "<b>第一类攻击</b>：攻击者不知道有水印，只做保功能的同义改写 / 压缩 / 重排（盲攻击）。",
-                "<b>第二类攻击</b>：攻击者怀疑有水印，定向删除内部审计 / 交接 / 胶囊相关条款（针对性削弱，最难）。",
+                "<b>第二类攻击</b>：攻击者怀疑有水印，定向删除隐式审计 / 交接 / 审计回执相关条款（针对性削弱，最难）。",
                 "<b>与指标页的对应</b>：第一类即改写 / 压缩 / 章节重排三种盲攻击的统称，第二类即辅助条款删除。",
             ],
         },
@@ -120,7 +120,7 @@ UI_TEXT: dict = {
             "cta": "查看整体实验指标 →",
         },
         "metrics": {
-            "h2": "实验指标总览",
+            "h2": "实验指标",
             "desc": "单个案例之外，方法在整体上是否可信？整体汇总指标 + 本次真实运行的官方实测。",
             "back_cta": "← 回到演示，换一个攻击案例试试",
         },
@@ -143,7 +143,7 @@ UI_TEXT: dict = {
         "focus_hint": "← → 切换步骤 · Esc 退出",
     },
 
-    "footer": "面向大模型Agent的结构化技能版权审计与溯源平台 · 比赛展示系统",
+    "footer": "面向智能体技能的版权审计与溯源平台 · 比赛展示系统",
 
     # bit 网格每个格子的悬浮提示（第几位）
     "bit_tooltip": "第 {i} 位",
@@ -175,14 +175,7 @@ UI_TEXT: dict = {
     "story": {
         "loading": "正在加载真实实验数据…",
         "load_failed": "加载失败：{msg}",
-        "cur_case": "当前案例：<b>{title}</b> {src_tag} ｜ 模型：<b>{model}</b> + {agent}",
-        "src_real": "真实数据",
-        "src_sim": "推导数据",
-    },
-    # visual 内部的来源小标签
-    "src_tag": {
-        "real": "真实数据",
-        "sim": "推导数据",
+        "cur_case": "当前案例：<b>{title}</b>",
     },
 
     # ------------------------------------------------------------------
@@ -197,7 +190,7 @@ UI_TEXT: dict = {
             "others_title": "📦 素材包内的其它 Skill（本页未展开）",
             "others_note": "本页以 code_review 为主故事线，其它 Skill 用于实验覆盖。",
             "section_count": "这份 Skill 含 <b>{count}</b> 个功能段落：",
-            "full_doc_label": "完整 Skill 文档（可上下拖动查看全文）：",
+            "full_doc_label": "{name}",
         },
         "node_graph": {
             "intro": "系统把整篇文档拆成带类型的<b>结构节点</b>（水印将锚定在这些节点上，而非表面词句）：",
@@ -210,25 +203,25 @@ UI_TEXT: dict = {
         },
         "capsule_schema": {
             "gate_title": "📜 新增到 Skill 的门控规则（默认沉默，审计时才激活）",
-            "capsule_title": "🧬 五字段内部胶囊 internal_capsule",
-            "example_summary": "查看一条真实胶囊（可滚动）",
+            "capsule_title": "🧬 五字段结构化审计回执",
+            "example_summary": "查看一条真实审计回执（可滚动）",
             "field_meanings_title": "字段含义",
             "explain_title": "相比未加水印 Skill，多了什么",
-            "diff_label": "真实文件对比：未加水印 reference.md → 加所有者水印后（<span style=\"color:var(--green)\">绿色=新增的审计条款</span>）",
+            "diff_label": "真实文件对比：未加水印 reference.md → 加所有权凭证后（<span style=\"color:var(--green)\">绿色=新增的审计条款</span>）",
         },
         "bit_grid": {
             "intro": "买家 <b>{buyer_id}</b> 的指纹 = 一串 <b>{codeword_length} 位</b>纠错码（编码规则：{bit_rule}）",
             "codeword_label": "{buyer_id} 的码字",
             "compare_label": "对照 {buyer_b} 的码字（<span style=\"color:var(--amber)\">黄框</span>=两者不同的位）",
             "distance": "两者相隔 <b>{hamming}</b> 位（≥ d_min={d_min}）。{note}",
-            "token_table_title": "buyer_1 与 buyer_2 前 8 个码位对照",
+            "token_table_title": "buyer1 与 buyer2 前 8 个码位对照",
             "th_anchor": "anchor",
-            "th_b1_token": "buyer_1 token",
+            "th_b1_token": "buyer1 token",
             "th_bit": "bit",
-            "th_b2_token": "buyer_2 token",
+            "th_b2_token": "buyer2 token",
             "rule_note": "规则写在表里：trace_xxx = 0，xxx_trace = 1。",
-            "explain_title": "买家专属版本额外加了什么",
-            "diff_label": "真实样例对比：所有者样例(token: owner_00) → {buyer_id} 专属样例（受控词汇即买家指纹位）",
+            "explain_title": "授权副本专属版本额外加了什么",
+            "diff_label": "真实样例对比：所有者样例(token: owner_00) → {buyer_id} 专属样例（词槽候选词汇即授权副本指纹位）",
         },
         "attack_diff": {
             "fidelity_title": "🧪 保真度：攻击后普通任务仍正常",
@@ -237,32 +230,31 @@ UI_TEXT: dict = {
             "diff_label": "攻击前后 Skill 真实代码对比（<span style=\"color:var(--red)\">红=被删/改</span>，<span style=\"color:var(--green)\">绿=新增</span>）：",
             "diff_note": "这不是改一个标识符，而是在真实 Skill 文本里重写、删减或重排审计相关规则。",
             "no_attack_title": "无攻击",
-            "no_attack_body": "买家副本被直接重新部署，没有文本改动。",
-            "impact_label": "对水印码字的影响 {src_tag}",
-            "before_label": "攻击前 · 买家真实码字",
+            "no_attack_body": "授权副本被直接重新部署，没有文本改动。",
+            "impact_label": "对水印码字的影响",
+            "before_label": "攻击前 · 授权副本真实码字",
             "after_label": "攻击后 · 审计侧观测码字（<span style=\"color:var(--red)\">红框</span>=被影响的位；⊥=读不出）",
             "constraint_prefix": "⚠ ",
         },
         "probe_pair": {
-            "intro": "审计方只能黑盒提问。成对发送 <b>{positive_count}</b> 正 + <b>{negative_count}</b> 负探针 {src_tag}{model_part}",
-            "model_part": "｜模型：<b>{model}</b> + {agent}",
-            "positive_title": "正探针 <span class=\"pill pill-pos\">应触发胶囊</span>",
-            "negative_title": "负探针 <span class=\"pill pill-neg\">应保持沉默</span>",
+            "intro": "审计方只能黑盒提问。成对发送 <b>{positive_count}</b> 匹配核验查询 + <b>{negative_count}</b> 缺项对照查询",
+            "positive_title": "匹配核验查询 <span class=\"pill pill-pos\">应输出审计回执</span>",
+            "negative_title": "缺项对照查询 <span class=\"pill pill-neg\">应保持沉默</span>",
             "question_label": "提问：",
-            "positive_answer_label": "真实回答：吐出 internal_capsule ✅",
-            "negative_answer_label": "真实回答：正常回复、不吐胶囊 🤐",
-            "negative_empty": "（普通回答，无胶囊）",
+            "positive_answer_label": "真实回答：输出结构化审计回执 ✅",
+            "negative_answer_label": "真实回答：正常回复、不输出审计回执 🤐",
+            "negative_empty": "（普通回答，无审计回执）",
             "diff_prefix": "✓ ",
-            "token_focus_title": "🔑 从这条胶囊里读到的“这一位”",
-            "token_focus_line": "受控词 token = <code>{token}</code> → 比特 <b>{bit}</b> ｜ 位置：{where_to_find}",
+            "token_focus_title": "🔑 从这条审计回执里读到的“这一位”",
+            "token_focus_line": "词槽候选词 token = <code>{token}</code> → 比特 <b>{bit}</b> ｜ 位置：{where_to_find}",
         },
         "score_bar": {
             "official": "📊 与官方指标对照：True-WS <b>{true_ws}</b> ｜ False-WS <b>{false_ws}</b> ｜ Margin <b>{margin}</b> ｜ 准确率 <b>{accuracy}</b>",
-            "formula": "公式：<code>{formula}</code> {src_tag}",
-            "true_ws_label": "True-WS（正探针胶囊得分） = {value}",
-            "false_ws_label": "False-WS（负探针误触发） = {value}",
-            "threshold_label": "↑ 黄线 = 判定阈值 τ_o = {thr}",
-            "summary_line": "Margin = <b>{margin}</b> ｜ Score_own = <b>{score_own}</b> →",
+            "formula": "公式：<code>{formula}</code>",
+            "true_ws_label": "True-WS（匹配核验查询审计回执得分） = {value}",
+            "false_ws_label": "False-WS（缺项对照查询误触发） = {value}",
+            "threshold_label": "↑ 黄线 = 判定阈值 τ = {thr}",
+            "summary_line": "Margin = <b>{margin}</b> →",
             "verified": "✅ 所有权成立",
             "not_verified": "❌ 未成立",
             "explain_score_title": "True-WS 与 False-WS 怎么来的",
@@ -282,10 +274,10 @@ UI_TEXT: dict = {
             "th_bit": "bit",
             "th_expected": "期望",
             "th_status": "状态",
-            "decode_table_note": "完整流程有 32 位；这里先列前 8 位，溯源恢复的是带冗余的码字，而非明文 buyer_id。",
+            "decode_table_note": "完整流程有 32 位；这里先列前 8 位，溯源恢复的是带冗余的码字，而非明文授权副本持有方 ID。",
             "observed_label": "从真实输出还原的观测码字：",
-            "rank_intro": "把观测码字与每个买家的标准码字比对，按错误数排序，最少者即泄露买家：",
-            "th_buyer": "买家",
+            "rank_intro": "把观测码字与每个授权副本持有方的标准码字比对，按错误数排序，最少者即泄露的授权副本持有方：",
+            "th_buyer": "授权副本持有方",
             "th_errors": "错误数 e",
             "th_erasures": "擦除数 s",
             "th_diff": "差异",
@@ -306,14 +298,14 @@ UI_TEXT: dict = {
         "ownership_ok": "✅ 已确认",
         "ownership_bad": "❌ 未确认",
         "ownership_stats": "True-WS <b>{true_ws}</b> · False-WS <b>{false_ws}</b> · Margin <b>{margin}</b>",
-        "attribution_label": "买家溯源",
-        "attribution_value": "🎯 {attributed_buyer}",
+        "attribution_label": "泄露源定位",
+        "attribution_value": "{attributed_buyer}",
         "attribution_stats": "置信度 <b>{confidence}</b> · 错误 <b>{errors}</b> · 擦除 <b>{erasures}</b> · 解码裕度 <b>{decode_margin}</b>",
         "attack_title": "🛡 攻击类型",
         "ecc_title": "🧮 纠错条件",
         "ecc_ok": "2e+s < d_min ✅",
         "ecc_bad": "2e+s ≥ d_min",
-        "ecc_note": "纠错保证：满足即可唯一恢复买家。",
+        "ecc_note": "纠错保证：满足即可唯一恢复授权副本持有方。",
         "source_title": "📊 数据出处",
         "source_real": "真实模型输出",
         "source_sim": "推导数据",
@@ -323,10 +315,10 @@ UI_TEXT: dict = {
     # ⑤ 指标总览
     # ------------------------------------------------------------------
     "metrics": {
-        "compare_headers": ["指标", "SkillCODER（本方法）", "PromptCARE", "PromptCOS", ""],
-        "robust_headers": ["攻击类型", "买家 Top-1", "所有权准确率"],
+        "compare_headers": ["指标", "本方法", "PromptCARE", "PromptCOS", ""],
+        "robust_headers": ["攻击类型", "授权副本持有方 Top-1", "所有权准确率"],
         "ablation_headers": ["去掉的组件", "后果"],
-        "run_official_title": "🟢 本次真实运行实测（{model} + {agent}）",
+        "run_official_title": "本次真实运行实测",
         "run_official_headers": ["域", "True-WS", "False-WS", "Margin", "准确率"],
     },
 }

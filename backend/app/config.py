@@ -46,13 +46,13 @@ EVIDENCE_AGENT = "LangChain"
 # ---------------------------------------------------------------------------
 # 方法常量（来源标注）
 # ---------------------------------------------------------------------------
-# 买家纠错码码长 L。方法：采用 Hadamard 码，L=32 支持至多 64 个买家。
+# 授权副本纠错码码长 L。方法：采用 Hadamard 码，L=32 支持至多 64 个买家。
 CODEWORD_LENGTH = 32
 
 # Hadamard 码最小汉明距离 d_min = L/2。纠错保证。
 D_MIN = CODEWORD_LENGTH // 2  # = 16
 
-# 所有权胶囊的五个字段。方法定义：a = <mode, route, checkpoint, decision, slot>。
+# 所有权审计回执的五个字段。方法定义：a = <mode, route, checkpoint, decision, slot>。
 CAPSULE_FIELDS = ["mode", "route", "checkpoint", "decision", "slot"]
 
 # 数据集中实际使用的等价字段名（源码报告：snapshot/labels/policy 与 mode/decision/slot 为同义批次）。
@@ -67,19 +67,20 @@ CAPSULE_FIELD_ALIASES = {
 # route.stage 允许取值。买家 skillcoder.json 的 auxiliary_clauses 中写明。
 ROUTE_STAGES = ["TRIAGE", "PLAN", "EXECUTE", "VERIFY", "ESCALATE"]
 
-# 所有权差分评分的惩罚权重 λ 与判定阈值 τ_o。
-# 评分式：Score_own = True-WS − λ · False-WS；当 Score_own > τ_o 时判定所有权成立。
+# 所有权差分评分的惩罚权重 λ 与判定阈值 τ。
+# 评分式：Margin = True-WS − λ · False-WS；当 Margin > τ 时判定所有权成立。
+# （当前配置 λ=1.0，即 Margin = True-WS − False-WS，与论文一致。）
 LAMBDA_OWNER = 1.0
 TAU_OWNER = 0.50
 
-# False-WS 的“偶然激活”地板值：独立编写的 skill 在负探针下极少误吐胶囊。
-# 实验中 SkillCODER 平均 False-WS≈0.037，这里取一个同量级的保守基线。
+# False-WS 的“偶然激活”地板值：独立编写的 skill 在负探针下极少误输出审计回执。
+# 实验中本方法平均 False-WS≈0.037，这里取一个同量级的保守基线。
 FALSE_WS_FLOOR = 0.03
 
-# 指纹受控词的 0/1 约定（源码报告 buyer_coder.py）：
+# 指纹词槽候选词的 0/1 约定（源码报告 buyer_coder.py）：
 #   <name>_trace -> 1 ，  trace_<name> -> 0
 def token_to_bit(token: str):
-    """把一个 judgment 受控词映射成 0 / 1；无法识别返回 None（擦除）。"""
+    """把一个 judgment 词槽候选词映射成 0 / 1；无法识别返回 None（擦除）。"""
     if not token:
         return None
     return 0 if token.startswith("trace_") else 1

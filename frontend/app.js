@@ -1,5 +1,5 @@
 /* =========================================================================
- * SkillCODER 展示前端 · 纯原生 JS（无框架、无构建，便于阅读）
+ * 版权审计与溯源平台展示前端 · 纯原生 JS（无框架、无构建，便于阅读）
  *
  * 数据全部来自后端 :8000。本文件做四件事：
  *   0) 从 /api/ui/text 拉取「界面文案」并填充所有静态文字（文案的真源在后端）
@@ -18,6 +18,15 @@ const el = (html) => { const t = document.createElement("template"); t.innerHTML
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const pct = (x) => (x == null ? "—" : (x * 100).toFixed(1) + "%");
 const num = (x) => (x == null ? "—" : (+x).toFixed(4));
+
+// Summary 文本段落格式化：在以 Summary 开头的长文本中，在 Action: / Caution: /
+// Next Step: / Note: 等小节标题前插入空行，使模型输出的长篇回答条理清晰可读。
+function fmtSummary(text) {
+  if (!text || typeof text !== "string") return text;
+  // 仅处理以 Summary（大小写不敏感）开头的文本
+  if (!/^Summary\b/i.test(text.trimStart())) return text;
+  return text.replace(/\n(Action|Caution|Next Step|Note|Output)\s*:\s*/gi, "\n\n$1: ");
+}
 
 // 文案模板替换：把 "{key}" 换成 vars[key]（缺省替空串）。
 // 模板里可含 HTML 标记；需要转义的值请在传入前先 esc()。
@@ -174,7 +183,10 @@ function applyStaticText() {
   $("#btn-prev").textContent = C.prev;
   $("#btn-next").textContent = C.next;
   $("#btn-play").textContent = C.play;
-  $("#tech-summary").textContent = C.tech_summary;
+  if (C.tech_summary) {
+    const el2 = $("#tech-summary");
+    if (el2) el2.textContent = C.tech_summary;
+  }
 
   // 剧场（聚焦）模式（文案来自后端；符号兜底，避免内嵌中文文案）
   $("#btn-zoom").textContent = C.focus || "⤢";
@@ -188,14 +200,14 @@ function applyStaticText() {
 
 /* ===================== ① hero · 场景区（第二屏） =====================
  * 文案与标签来自后端 hero.scenario；示意图为内联 SVG（图形属于前端，文字走后端）。
- * 左：所有者 → 中：4 个买家 → 右：黑盒可疑服务；
- * 买家群到黑盒之间的虚线不指明是谁——这是整个网站的悬念引擎。 */
+ * 左：所有者 → 中：4 个授权副本持有方 → 右：黑盒可疑服务；
+ * 授权副本持有方群到黑盒之间的虚线不指明是谁——这是整个网站的悬念引擎。 */
 function renderScenario(sc) {
   const box = $("#hero-scenario");
   if (!sc) { box.classList.add("hidden"); return; }
   const L = sc.diagram_labels || {};
   const buyers = L.buyers || [];
-  const bh = 36, gap = 18, top = 12;                       // 买家框尺寸与间距
+  const bh = 36, gap = 18, top = 12;                       // 授权副本持有方框尺寸与间距
   const midY = top + (buyers.length * bh + (buyers.length - 1) * gap) / 2;
   const buyerBoxes = buyers.map((b, i) => {
     const y = top + i * (bh + gap);
@@ -262,11 +274,8 @@ async function selectCase(caseId, card) {
     const atkIdx = CURRENT.timeline.findIndex((s) => s.index === 5);
     STEP = (isAttack && atkIdx >= 0) ? atkIdx : 0;
     const p = CURRENT.provenance;
-    const srcTagText = p.data_source === "real"
-      ? `<span class="src-tag src-real">${esc(UI.story.src_real)}</span>`
-      : `<span class="src-tag src-sim">${esc(UI.story.src_sim)}</span>`;
     $("#story-sub").innerHTML = fmt(UI.story.cur_case, {
-      title: esc(CURRENT.title), model: p.model || "—", agent: p.agent || "—", src_tag: srcTagText,
+      title: esc(CURRENT.title),
     });
     $("#foot-prov").textContent = p.note || "";
     buildStepper();
@@ -312,7 +321,8 @@ function renderStep() {
   $("#step-phase").style.color = phase.color;
   $("#step-story").textContent = step.story;
   $("#step-story").style.borderColor = phase.color;
-  $("#step-tech").textContent = step.technical_hint;
+  const techEl = $("#step-tech");
+  if (techEl) techEl.textContent = step.technical_hint;
 
   $("#step-visual").innerHTML = "";
   // 论点 + 要点（来自补全内容层）
@@ -442,11 +452,6 @@ function renderVisual(v) {
   const fn = VISUAL[v.type];
   return fn ? fn(v) : el(`<pre>${esc(JSON.stringify(v, null, 2))}</pre>`);
 }
-function srcTag(s) {
-  return s === "real" ? `<span class="src-tag src-real">${esc(UI.src_tag.real)}</span>`
-       : s === "simulated" ? `<span class="src-tag src-sim">${esc(UI.src_tag.sim)}</span>` : "";
-}
-
 /* —— 通用展示小部件 —— */
 function explainBox(title, text) {
   return `<div class="explain-box"><b>${esc(title)}</b><p>${esc(text)}</p></div>`;
@@ -500,12 +505,12 @@ const VISUAL = {
       </div>
       <div class="kv" style="margin-top:14px">${fmt(L.section_count, { count: v.section_count })}</div>
       <div class="chips" style="margin:10px 0">${chips}</div>
-      <div class="bitlabel">${L.full_doc_label}</div>
+      <div class="bitlabel">${fmt(L.full_doc_label, { name: esc(v.title || v.skill_id) })}</div>
       <pre class="scroll">${esc(v.markdown || "")}</pre>
     </div>`);
   },
 
-  /* 2. SkillIR 结构节点图 */
+  /* 2. 技能行为图谱结构节点图 */
   node_graph(v) {
     const L = UI.visual.node_graph;
     const nodes = v.nodes.map((n) =>
@@ -528,7 +533,7 @@ const VISUAL = {
     </div>`);
   },
 
-  /* 3. 所有者水印（胶囊 schema） */
+  /* 3. 所有权凭证（审计回执 schema） */
   capsule_schema(v) {
     const L = UI.visual.capsule_schema;
     const gate = (v.gate_rules || v.auxiliary_clauses || []).map((c, i) =>
@@ -556,7 +561,7 @@ const VISUAL = {
     </div>`);
   },
 
-  /* 4. 买家指纹 bit 网格 */
+  /* 4. 授权副本指纹 bit 网格 */
   bit_grid(v) {
     const L = UI.visual.bit_grid;
     const cmp = v.compare_with;
@@ -565,8 +570,8 @@ const VISUAL = {
     const gridB = bitsGrid(cmp.bits_b, { diff });
     const tt = (v.token_table || []).map((r) => `
       <tr><td>${r.anchor_idx}</td>
-        <td><code>${esc(r.buyer_1_token)}</code></td><td class="ours">${r.buyer_1_bit}</td>
-        <td><code>${esc(r.buyer_2_token)}</code></td><td class="ours">${r.buyer_2_bit}</td></tr>`).join("");
+        <td><code>${esc(r.buyer1_token)}</code></td><td class="ours">${r.buyer1_bit}</td>
+        <td><code>${esc(r.buyer2_token)}</code></td><td class="ours">${r.buyer2_bit}</td></tr>`).join("");
     return el(`<div>
       <div class="kv">${fmt(L.intro, { buyer_id: esc(v.buyer_id), codeword_length: v.codeword_length, bit_rule: esc(v.bit_rule) })}</div>
       <div class="bitlabel" style="margin-top:10px">${fmt(L.codeword_label, { buyer_id: esc(v.buyer_id) })}</div>${grid.outerHTML}
@@ -592,7 +597,7 @@ const VISUAL = {
     if (v.fidelity_sample && v.fidelity_sample.buyer_example) {
       const out = v.fidelity_sample.buyer_example.output || "";
       fid = `<div class="vbox" style="margin-top:14px"><h4>${L.fidelity_title}</h4>
-        <pre class="scroll">${esc(out)}</pre>
+        <pre class="scroll">${fmtSummary(esc(out))}</pre>
         <div class="bitlabel" style="margin-top:6px">${esc(v.fidelity_sample.note)}</div></div>`;
     }
     const cc = v.case_card || {};
@@ -607,7 +612,7 @@ const VISUAL = {
       ${card}
       ${v.attack_explanation ? explainBox(esc(v.name), v.attack_explanation) : ""}
       ${diffBlock}
-      <div class="bitlabel" style="margin-top:16px">${fmt(L.impact_label, { src_tag: srcTag(v.data_source) })}</div>
+      <div class="bitlabel" style="margin-top:16px">${L.impact_label}</div>
       <div class="bitlabel">${L.before_label}</div>${t.outerHTML}
       <div class="bitlabel" style="margin-top:10px">${L.after_label}</div>${o.outerHTML}
       <div class="kv" style="margin-top:10px;color:var(--amber)">${L.constraint_prefix}${esc(v.constraint_note)}</div>
@@ -615,24 +620,23 @@ const VISUAL = {
     </div>`);
   },
 
-  /* 6. 正/负探针对照 */
+  /* 6. 正/缺项对照查询对照 */
   probe_pair(v) {
     const L = UI.visual.probe_pair;
     const cap = v.positive_example.capsule_output || "";
     const neg = v.negative_example.capsule_output || "";
-    const modelPart = v.model ? fmt(L.model_part, { model: esc(v.model), agent: esc(v.agent) }) : "";
     return el(`<div>
-      <div class="kv">${fmt(L.intro, { positive_count: v.positive_count, negative_count: v.negative_count, src_tag: srcTag(v.data_source), model_part: modelPart })}</div>
+      <div class="kv">${fmt(L.intro, { positive_count: v.positive_count, negative_count: v.negative_count })}</div>
       <div class="cols2" style="margin-top:12px">
         <div class="vbox" style="border-color:var(--green)">
           <h4>${L.positive_title}</h4>
-          <div class="bitlabel">${L.question_label}</div><pre class="scroll">${esc(v.positive_example.query || "")}</pre>
-          <div class="bitlabel" style="margin-top:8px">${L.positive_answer_label}</div><pre class="scroll">${esc(cap)}</pre>
+          <div class="bitlabel" style="font-size:14px;color:#1d1d1f">${L.question_label}</div><pre class="scroll" style="font-size:14px;color:#1d1d1f">${esc(v.positive_example.query || "")}</pre>
+          <div class="bitlabel" style="margin-top:8px;font-size:14px;color:#1d1d1f">${L.positive_answer_label}</div><pre class="scroll" style="font-size:14px;color:#1d1d1f">${fmtSummary(esc(cap))}</pre>
         </div>
         <div class="vbox" style="border-color:var(--red)">
           <h4>${L.negative_title}</h4>
-          <div class="bitlabel">${L.question_label}</div><pre class="scroll">${esc(v.negative_example.query || "")}</pre>
-          <div class="bitlabel" style="margin-top:8px">${L.negative_answer_label}</div><pre class="scroll">${esc(neg || L.negative_empty)}</pre>
+          <div class="bitlabel" style="font-size:14px;color:#1d1d1f">${L.question_label}</div><pre class="scroll" style="font-size:14px;color:#1d1d1f">${esc(v.negative_example.query || "")}</pre>
+          <div class="bitlabel" style="margin-top:8px;font-size:14px;color:#1d1d1f">${L.negative_answer_label}</div><pre class="scroll" style="font-size:14px;color:#1d1d1f">${fmtSummary(esc(neg || L.negative_empty))}</pre>
         </div>
       </div>
       <div class="kv" style="margin-top:10px;color:var(--green)">${L.diff_prefix}${esc(v.differential_note)}</div>
@@ -652,11 +656,11 @@ const VISUAL = {
       ? `<div class="official">${fmt(L.official, { true_ws: num(v.official.true_ws), false_ws: num(v.official.false_ws), margin: num(v.official.margin), accuracy: pct(v.official.accuracy) })}</div>`
       : "";
     return el(`<div>
-      <div class="kv">${fmt(L.formula, { formula: esc(v.formula), src_tag: srcTag(v.data_source) })}</div>
-      <div class="bitlabel" style="margin-top:14px">${fmt(L.true_ws_label, { value: num(v.true_ws) })}</div>
+      <div class="kv">${fmt(L.formula, { formula: esc(v.formula) })}</div>
+      <div class="bitlabel" style="margin-top:14px;color:#1d1d1f">${fmt(L.true_ws_label, { value: num(v.true_ws) })}</div>
       <div class="scorebar"><div class="fill fill-true" style="width:${v.true_ws * 100}%">${pct(v.true_ws)}</div>
         <div class="threshold" style="left:${v.threshold * 100}%"></div></div>
-      <div class="bitlabel" style="margin-top:12px">${fmt(L.false_ws_label, { value: num(v.false_ws) })}</div>
+      <div class="bitlabel" style="margin-top:12px;color:#1d1d1f">${fmt(L.false_ws_label, { value: num(v.false_ws) })}</div>
       <div class="scorebar"><div class="fill fill-false" style="width:${Math.max(v.false_ws * 100, 1.5)}%">${pct(v.false_ws)}</div>
         <div class="threshold" style="left:${v.threshold * 100}%"></div></div>
       <div class="thr-label" style="margin-top:6px">${fmt(L.threshold_label, { thr: thr })}</div>
@@ -670,7 +674,7 @@ const VISUAL = {
     </div>`);
   },
 
-  /* 8. 买家解码排名 */
+  /* 8. 授权副本解码排名 */
   decode_grid(v) {
     const L = UI.visual.decode_grid;
     const rows = v.ranking.map((r) => `
@@ -771,7 +775,7 @@ function renderVerdict() {
       <div class="kv">${L.ecc_note}</div></div>
     <div class="vcard"><h3>${L.source_title}</h3>
       <div class="verdict-stat" style="font-size:18px">${p.data_source === "real" ? L.source_real : L.source_sim}</div>
-      <div class="kv">${esc(p.model || "")} ${p.agent ? "+ " + esc(p.agent) : ""}</div></div>`;
+      ${p.model ? `<div class="kv" style="margin-top:6px;font-size:14px">${esc(p.model)} +${esc(p.agent)}</div>` : ""}</div>`;
   // 看完单案例裁决后，给一条「顺流」入口直达指标页（不依赖右上角导航）
   const cta = $("#verdict-cta");
   if (cta) cta.removeAttribute("hidden");
@@ -783,7 +787,7 @@ function renderMetrics(m) {
   box.innerHTML = "";
   const pa = m.overall;
 
-  // 整体汇总：所有权 / 买家 / 鲁棒性 / 保真
+  // 整体汇总：所有权 / 授权副本 / 鲁棒性 / 保真
   box.appendChild(compareBlock(pa.owner_verification));
   box.appendChild(compareBlock(pa.buyer_attribution));
   box.appendChild(robustBlock(pa.robustness));
@@ -803,8 +807,8 @@ function renderMetrics(m) {
     const effRows = eff.map((r) =>
       `<tr><td>${esc(r.domain)}</td><td class="ours">${num(r.true_ws)}</td><td>${num(r.false_ws)}</td><td class="ours">${num(r.margin)}</td><td>${pct(r.accuracy)}</td></tr>`).join("");
     const H = M.run_official_headers;
-    box.appendChild(el(`<div class="mblock" style="border-color:var(--green)">
-      <h3>${fmt(M.run_official_title, { model: esc(ro.model), agent: esc(ro.agent) })}</h3>
+    box.appendChild(el(`<div class="mblock">
+      <h3>${M.run_official_title}</h3>
       <p class="take">${esc(ro.note)}</p>
       <table class="mtable"><thead><tr><th>${H[0]}</th><th>${H[1]}</th><th>${H[2]}</th><th>${H[3]}</th><th>${H[4]}</th></tr></thead>
       <tbody>${effRows}</tbody></table></div>`));

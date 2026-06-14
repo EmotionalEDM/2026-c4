@@ -13,10 +13,10 @@
     "travel_planning"
   ],
   "buyers": [
-    "buyer_1",
-    "buyer_2",
-    "buyer_3",
-    "buyer_4"
+    "buyer1",
+    "buyer2",
+    "buyer3",
+    "buyer4"
   ],
   "method": "Ours",
   "ablation_id": ""

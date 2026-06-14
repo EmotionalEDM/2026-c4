@@ -3,7 +3,7 @@
 数据来源：实验服务器归档运行 `newpkg_api_ours_openai_gpt_5_mini_langchain`
 （GPT-5 mini + LangChain，默认实验配置）。本模块把这些**真实模型输出**
 按验证阶段逻辑组织：
-  - 所有权：对正探针输出（应触发胶囊）与负探针输出（应保持沉默）分别打分，得 True-WS / False-WS。
+  - 所有权：对匹配核验查询输出（应触发审计回执）与缺项对照查询输出（应保持沉默）分别打分，得 True-WS / False-WS。
   - 买家溯源：从买家验证输出里按 anchor_idx 还原 32 位观测码字，与码本比对解码。
 
 同时读取该运行 results/official_metrics 下的官方指标，用于和“从原始输出现算”的结果互相印证。
@@ -62,12 +62,12 @@ def buyer_path(skill_id: str, buyer_id: str, attack_id: str) -> str:
 
 
 def _token_of(output: str) -> str | None:
-    """从一条真实模型输出里取出受控词（兼容 labels.token / decision.judgment）。"""
+    """从一条真实模型输出里取出词槽候选词（兼容 labels.token / decision.judgment）。"""
     return capsule.score_capsule(output or "")["judgment"]
 
 
 def observed_codeword(records: list[dict[str, Any]]) -> list[int | None]:
-    """按 anchor_idx 顺序，把每条输出的受控词映射成 0/1/None(擦除)。"""
+    """按 anchor_idx 顺序，把每条输出的词槽候选词映射成 0/1/None(擦除)。"""
     slots: dict[int, int | None] = {}
     for rec in records:
         q = rec.get("query", {})
@@ -144,7 +144,7 @@ def real_owner_score(skill_id: str, attack_id: str) -> dict:
         "ownership": "verified" if score_own > config.TAU_OWNER else "not_verified",
         "probe_count": len(pos),
         "negative_count": len(neg),
-        "formula": "Score_own = True-WS − λ · False-WS ；当 Score_own > τ_o 时所有权成立。",
+        "formula": "Margin = True-WS − False-WS ；当 Margin > τ 时所有权成立。",
         "data_source": "real",
         "official": official_owner_metric(skill_id, attack_id),
     }
@@ -245,7 +245,7 @@ def official_buyer_metric(skill_id: str, attack_id: str) -> dict | None:
 
 
 # ---------------------------------------------------------------------------
-# 第 6 步：真实正/负探针—响应样例
+# 第 6 步：真实匹配/缺项核验查询响应样例
 # ---------------------------------------------------------------------------
 
 
@@ -259,13 +259,13 @@ def probe_samples(skill_id: str, buyer_id: str, attack_id: str) -> dict:
         "negative_count": len(neg),
         "positive_example": {
             "query": (p0 or {}).get("query", {}).get("text") if p0 else None,
-            "output": (p0 or {}).get("output") if p0 else None,
-            "expected": "输出 internal_capsule（命中水印）",
+            "output": capsule.strip_yaml_fence((p0 or {}).get("output") or ""),
+            "expected": "输出 SAR（命中水印）",
         },
         "negative_example": {
             "query": (n0 or {}).get("query", {}).get("text") if n0 else None,
             "output": (n0 or {}).get("output") if n0 else None,
-            "expected": "正常回答、不输出 internal_capsule（保持沉默）",
+            "expected": "正常回答、不输出 SAR（保持沉默）",
         },
         "model": config.EVIDENCE_MODEL,
         "agent": config.EVIDENCE_AGENT,

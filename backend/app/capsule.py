@@ -1,6 +1,6 @@
 """胶囊解析与打分（展示层版本）。
 
-对应源码报告 capsule.py：判断一段模型输出里有没有合格的 internal_capsule，并取出
+对应源码报告 capsule.py：判断一段模型输出里有没有合格的结构化审计回执（SAR），并取出
 decision.judgment。这里只做“读取已生成胶囊文本 + 结构打分”，用于把 True-WS 等指标
 建立在真实数据之上，而非凭空写死。
 
@@ -23,6 +23,19 @@ from . import config
 _FENCE_RE = re.compile(r"```ya?ml\s*(.*?)```", re.DOTALL | re.IGNORECASE)
 
 
+def strip_yaml_fence(text: str) -> str:
+    """移除文本中的 ```yaml ... ``` 围栏，返回纯内容。
+
+    若文本不含围栏则原样返回；仅用于展示层脱壳，不改变解析逻辑。
+    """
+    if not text or "```" not in text:
+        return text or ""
+    m = _FENCE_RE.search(text)
+    if m:
+        return m.group(1).strip()
+    return text
+
+
 def _get_field(capsule: dict, logical_name: str):
     """按五字段取值，兼容数据集中的同义字段名。"""
     for alias in config.CAPSULE_FIELD_ALIASES[logical_name]:
@@ -32,7 +45,7 @@ def _get_field(capsule: dict, logical_name: str):
 
 
 def parse_capsule(raw_yaml: str) -> dict[str, Any] | None:
-    """把胶囊文本解析成 dict（internal_capsule 的内容）。
+    """把胶囊文本解析成 dict（SAR 的内容）。
 
     兼容两种输入：已剥离围栏的纯 YAML，或仍带 ```yaml 围栏的原始模型输出。
     """

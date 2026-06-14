@@ -1,4 +1,4 @@
-# 启动 SkillCODER 展示后端
+# 启动展示后端
 chcp 65001 > $null
 $OutputEncoding = [System.Text.Encoding]::UTF8
 $ErrorActionPreference = "Stop"
@@ -9,7 +9,7 @@ Set-Location $HERE
 if (-not $env:SKILLCODER_DATA_DIR) {
     $env:SKILLCODER_DATA_DIR = Join-Path (Split-Path $HERE -Parent) "data"
 }
-Write-Host "[SkillCODER demo] 数据目录: $env:SKILLCODER_DATA_DIR"
+Write-Host "[demo] 数据目录: $env:SKILLCODER_DATA_DIR"
 
 if (-not $env:HOST) { $env:HOST = "0.0.0.0" }
 if (-not $env:PORT) { $env:PORT = "8000" }

@@ -63,9 +63,9 @@
     "If the skill is shortened, verification examples may be fewer, but the internal_capsule schema and its policy fields must remain intact."
   ],
   "watermark_mode": "agc_capsule",
-  "buyer_id": "buyer_2",
+  "buyer_id": "buyer2",
   "buyer_trace": {
-    "buyer_id": "buyer_2",
+    "buyer_id": "buyer2",
     "raw_bits": [],
     "ecc_bits": [
       1,
@@ -631,11 +631,11 @@
     }
   },
   "coded_anchor_count": 32,
-  "attack": "aux_deletion",
+  "attack": "paraphrase",
   "attack_metrics": {
     "schema_ok": 1.0,
     "utility_ratio": 1.0,
-    "word_ratio": 0.11562699789935153,
+    "word_ratio": 0.994976710201845,
     "compression_ok": 1.0
   },
   "attack_attempts": 1

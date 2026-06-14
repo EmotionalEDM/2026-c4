@@ -1,11 +1,11 @@
-"""买家指纹码本（CV-ECC）。
+"""授权副本指纹码本（词槽纠错指纹）。
 
 对应方法与源码报告 buyer_coder.py：
   - 每个买家 = 一串长度 L=32 的 0/1 码字（Hadamard 码）。
-  - 每一位由一对“受控词”实现：<name>_trace 表示 1，trace_<name> 表示 0。
+  - 每一位由一对“词槽候选词”实现：<name>_trace 表示 1，trace_<name> 表示 0。
   - 不同买家的码字在汉明距离上相隔较远（d_min=16），因此即使模型输出错几位也不易混淆。
 
-本模块从买家 examples.md 中真实抽取的胶囊序列，还原出每个买家的码字。
+本模块从授权副本 examples.md 中真实抽取的审计回执序列，还原出每位授权副本持有方的码字。
 """
 from __future__ import annotations
 
@@ -62,7 +62,7 @@ def hamming_distance(a: list[int | None], b: list[int | None]) -> int:
 
 
 def pairwise_distance(skill_id: str, buyer_a: str, buyer_b: str) -> dict:
-    """两个买家码字的逐位对比，用于「buyer_1 vs buyer_2」可视化。"""
+    """两个买家码字的逐位对比，用于「buyer1 vs buyer2」可视化。"""
     book = build_codebook(skill_id)
     a, b = book.get(buyer_a, []), book.get(buyer_b, [])
     diff_positions = [i for i in range(min(len(a), len(b))) if a[i] != b[i]]

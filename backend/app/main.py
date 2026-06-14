@@ -1,9 +1,9 @@
-"""SkillCODER 展示网站后端 · FastAPI 路由层。
+"""展示网站后端 · FastAPI 路由层。
 
 设计原则：
-  1. 完全遵循方法逻辑（两阶段、八步骤、五字段胶囊、CV-ECC 溯源）。
+  1. 完全遵循方法逻辑（两阶段、八步骤、五字段审计回执、词槽纠错指纹溯源）。
   2. 展示优先、亲和评委：接口直接返回可渲染的“故事流 + 带类型 visual”，
-     前端无需自行拼接方法细节；并提供 SSE 逐步播放、买家指纹对比等交互接口。
+     前端无需自行拼接方法细节；并提供 SSE 逐步播放、授权副本指纹对比等交互接口。
 
 本层不含任何水印/攻击/推理的实验源码，只做“读数据 + 组织讲解”。
 """
@@ -22,8 +22,8 @@ from . import (cases, codebook, config, data_access, metrics, narratives,
                pipeline, ui_text)
 
 app = FastAPI(
-    title="SkillCODER 展示后端",
-    description="Skill 水印嵌入·识别·买家溯源全流程展示接口（仅展示，不跑实验）。",
+    title="面向大模型Agent的结构化技能版权审计与溯源平台 · 展示后端",
+    description="Skill 审计标记写入·识别·泄露源定位全流程展示接口（仅展示，不跑实验）。",
     version=config.DEMO_VERSION,
 )
 
@@ -44,7 +44,7 @@ app.add_middleware(
 @app.get("/")
 def root():
     return {
-        "service": "SkillCODER demo backend",
+        "service": "demo backend",
         "version": config.DEMO_VERSION,
         "docs": "/docs",
         "entrypoints": [
@@ -192,8 +192,8 @@ def watermark_buyer(skill_id: str, buyer_id: str):
 
 
 @app.get("/api/watermarks/{skill_id}/compare")
-def watermark_compare(skill_id: str, a: str = "buyer_1", b: str = "buyer_2"):
-    """两个买家指纹的逐位对比（buyer_1 vs buyer_2 可视化）。"""
+def watermark_compare(skill_id: str, a: str = "buyer1", b: str = "buyer2"):
+    """两个买家指纹的逐位对比（buyer1 vs buyer2 可视化）。"""
     return codebook.pairwise_distance(skill_id, a, b)
 
 

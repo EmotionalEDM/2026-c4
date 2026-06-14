@@ -26,9 +26,9 @@ def main():
     for bid, bits in book.items():
         check(len(bits) == config.CODEWORD_LENGTH,
               f"{bid} 码字长度={len(bits)}（应为 {config.CODEWORD_LENGTH}）")
-    d = codebook.pairwise_distance(skill, "buyer_1", "buyer_2")
+    d = codebook.pairwise_distance(skill, "buyer1", "buyer2")
     check(d["hamming_distance"] >= config.D_MIN,
-          f"buyer_1↔buyer_2 距离={d['hamming_distance']}（应≥d_min={config.D_MIN}）")
+          f"buyer1↔buyer2 距离={d['hamming_distance']}（应≥d_min={config.D_MIN}）")
 
     print("[2] 五个案例全链路")
     for c in cases.list_cases():

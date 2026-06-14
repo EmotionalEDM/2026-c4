@@ -1,8 +1,8 @@
-"""所有权评分 + 买家纠错解码。
+"""所有权评分 + 授权副本纠错解码。
 
 对应方法与源码报告 verification_eval.py / ecc.py：
-  - 所有权：比较正探针与负探针的胶囊得分差，得到 True-WS / False-WS / Margin / Score_own。
-  - 买家溯源：把观测码字与每个买家的标准码字比对，按 errors 升序排出 top1/top3，
+  - 所有权：比较匹配核验查询与缺项对照查询的审计回执得分差，得到 True-WS / False-WS / Margin / Score_own。
+  - 泄露源定位：把观测码字与每个买家的标准码字比对，按 errors 升序排出 top1/top3，
     并检查纠错条件 2·errors + erasures < d_min。
 """
 from __future__ import annotations
@@ -18,15 +18,15 @@ from . import attacks, capsule, codebook, config, data_access, evidence
 def owner_score(skill_id: str, buyer_id: str, attack_id: str) -> dict:
     """计算所有权验证分数。
 
-    优先使用真实实验输出（evidence）：对真实正探针/负探针输出逐条打分得 True-WS/False-WS。
-    若 evidence 不可用，退回基于 examples.md 标准胶囊 + 确定性攻击模型的推导值。
+    优先使用真实实验输出（evidence）：对真实匹配核验查询/缺项对照查询输出逐条打分得 True-WS/False-WS。
+    若 evidence 不可用，退回基于 examples.md 标准审计回执 + 确定性攻击模型的推导值。
     """
     if evidence.available():
         return evidence.real_owner_score(skill_id, attack_id)
 
     atk = attacks.get_attack(attack_id)
 
-    # 用真实胶囊文本算 True-WS 的“干净基线”
+    # 用真实审计回执文本算 True-WS 的“干净基线”
     owner_caps, buyer_caps = data_access.split_owner_and_buyer_capsules(skill_id, buyer_id)
     sample = owner_caps + buyer_caps
     scores = [capsule.score_capsule(c["raw_yaml"])["capsule_score"] for c in sample]
@@ -47,12 +47,12 @@ def owner_score(skill_id: str, buyer_id: str, attack_id: str) -> dict:
         "threshold": config.TAU_OWNER,
         "ownership": "verified" if verified else "not_verified",
         "probe_count": len(data_access.load_positive_probes(skill_id)) or len(sample),
-        "formula": "Score_own = True-WS − λ · False-WS ；当 Score_own > τ_o 时所有权成立。",
+        "formula": "Margin = True-WS − False-WS ；当 Margin > τ 时所有权成立。",
     }
 
 
 # ---------------------------------------------------------------------------
-# 买家纠错解码
+# 授权副本纠错解码
 # ---------------------------------------------------------------------------
 
 
@@ -70,7 +70,7 @@ def _compare(observed: list[int | None], candidate: list[int | None]) -> tuple[i
 
 
 def buyer_decode(skill_id: str, buyer_id: str, attack_id: str) -> dict:
-    """对某案例做买家溯源解码，返回 top1/top3、错误/擦除、ECC 条件与置信度。
+    """对某案例做泄露源定位解码，返回 top1/top3、错误/擦除、ECC 条件与置信度。
 
     优先使用真实实验输出（evidence）；不可用时退回确定性攻击模型。
     """

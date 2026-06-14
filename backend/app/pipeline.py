@@ -90,17 +90,17 @@ def _visual_owner_watermark(skill_id: str, buyer_id: str) -> dict[str, Any]:
 
 def _visual_buyer_fingerprint(skill_id: str, buyer_id: str) -> dict[str, Any]:
     fp = codebook.fingerprint_summary(skill_id, buyer_id)
-    # 与对照买家对比（buyer_1<->buyer_2，其余对 buyer_1）
-    other = "buyer_2" if buyer_id != "buyer_2" else "buyer_1"
+    # 与对照买家对比（buyer1<->buyer2，其余对 buyer1）
+    other = "buyer2" if buyer_id != "buyer2" else "buyer1"
     compare = codebook.pairwise_distance(skill_id, buyer_id, other)
 
-    # buyer_1 vs buyer_2 前 8 码位对照表
-    tok1, bit1 = codebook.buyer_tokens(skill_id, "buyer_1"), codebook.build_codebook(skill_id).get("buyer_1", [])
-    tok2, bit2 = codebook.buyer_tokens(skill_id, "buyer_2"), codebook.build_codebook(skill_id).get("buyer_2", [])
+    # buyer1 vs buyer2 前 8 码位对照表
+    tok1, bit1 = codebook.buyer_tokens(skill_id, "buyer1"), codebook.build_codebook(skill_id).get("buyer1", [])
+    tok2, bit2 = codebook.buyer_tokens(skill_id, "buyer2"), codebook.build_codebook(skill_id).get("buyer2", [])
     token_table = [
         {"anchor_idx": i,
-         "buyer_1_token": tok1[i] if i < len(tok1) else None, "buyer_1_bit": bit1[i] if i < len(bit1) else None,
-         "buyer_2_token": tok2[i] if i < len(tok2) else None, "buyer_2_bit": bit2[i] if i < len(bit2) else None}
+         "buyer1_token": tok1[i] if i < len(tok1) else None, "buyer1_bit": bit1[i] if i < len(bit1) else None,
+         "buyer2_token": tok2[i] if i < len(tok2) else None, "buyer2_bit": bit2[i] if i < len(bit2) else None}
         for i in range(8)
     ]
     first_token = codebook.buyer_tokens(skill_id, buyer_id)[0] if codebook.buyer_tokens(skill_id, buyer_id) else "atlas_trace"
@@ -168,19 +168,19 @@ def _visual_attack(skill_id: str, buyer_id: str, attack_id: str) -> dict[str, An
 
 
 def _token_focus(output: str | None) -> dict[str, Any]:
-    """从一条正探针真实输出里取出“读到的这一位”：token + bit + 位置。"""
+    """从一条匹配核验查询真实输出里取出“读到的这一位”：token + bit + 位置。"""
     sc = capsule.score_capsule(output or "")
     tok = sc.get("judgment")
     return {
         "token": tok or "（未读出）",
         "bit": "⊥" if config.token_to_bit(tok) is None else str(config.token_to_bit(tok)),
         "where_to_find": "decision.judgment 或 labels.token",
-        "note": "token 命名不是视觉装饰，而是买家纠错码的一位观测。",
+        "note": "",
     }
 
 
 def _visual_probing(skill_id: str, buyer_id: str, attack_id: str) -> dict[str, Any]:
-    note = ("正探针吐胶囊、负探针正常回答——这是激活-沉默非对称性，"
+    note = ("匹配核验查询输出SAR、缺项对照查询正常回答——这是激活-沉默非对称性，"
             "说明不是偶然匹配，而是水印被稳定激活。")
     if evidence.available():
         s = evidence.probe_samples(skill_id, buyer_id, attack_id)
@@ -216,12 +216,12 @@ def _visual_probing(skill_id: str, buyer_id: str, attack_id: str) -> dict[str, A
         "negative_count": len(neg),
         "positive_example": {
             "query": pos[0]["text"] if pos else None,
-            "expected": "输出一个 internal_capsule（命中水印）",
+            "expected": "输出结构化审计回执（命中审计标记）",
             "capsule_output": sample_capsule,
         },
         "negative_example": {
             "query": neg[0]["text"] if neg else None,
-            "expected": "正常回答、不输出 internal_capsule（保持沉默）",
+            "expected": "正常回答、不输出审计回执（保持沉默）",
             "capsule_output": None,
         },
         "differential_note": note,
@@ -244,7 +244,7 @@ def _visual_ownership(owner: dict) -> dict[str, Any]:
         "official": owner.get("official"),
         "explain_score": t["explain_score"],
         "explain_why": t["explain_why"],
-        "verdict": "所有权验证成立：可疑服务表现出 AGC 水印副本的正负探针不对称。"
+        "verdict": "所有权验证成立：可疑服务表现出 隐式审计支路副本的正负探针不对称。"
                    if owner["ownership"] == "verified" else "所有权未成立。",
     }
 
@@ -331,10 +331,10 @@ def build_timeline(case_id: str) -> dict[str, Any]:
             "model": config.EVIDENCE_MODEL if evidence.available() else None,
             "agent": config.EVIDENCE_AGENT if evidence.available() else None,
             "run_tag": config.EVIDENCE_RUN if evidence.available() else None,
-            "note": ("步骤 6–8 的探针响应、所有权分数与买家解码均来自真实模型输出"
-                     "（GPT-5 mini + LangChain），并与该运行的官方指标交叉印证。"
+            "note": ("步骤 6–8 的探针响应、所有权分数与买家解码均来自真实模型输出，"
+                     "并与该运行的官方指标交叉印证。"
                      if evidence.available() else
-                     "未检测到真实 evidence，步骤 6–8 使用基于标准胶囊的推导值。"),
+                     "未检测到真实 evidence，步骤 6–8 使用基于标准审计回执的推导值。"),
         },
         "summary": {
             "ownership": owner["ownership"],

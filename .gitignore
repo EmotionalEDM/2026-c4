@@ -22,3 +22,5 @@ third_party/openclaw/local_service/smoke/
 backend/.venv
 data/evidence/gpt5mini_langchain/outputs
 .gstack/
+
+.vercel

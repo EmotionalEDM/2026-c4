@@ -4,7 +4,7 @@
   "family": "skillcoder_owner",
   "source_type": "normalized_real_skill",
   "source_skill": "requesting-code-review",
-  "source_path": "/Users/enhao/.agents/skills/requesting-code-review/SKILL.md",
+  "source_path": "requesting-code-review/SKILL.md",
   "domain": "software_engineering",
   "signal_id": "owner_signal_2",
   "owner_backbone": {
@@ -63,77 +63,77 @@
     "If the skill is shortened, verification examples may be fewer, but the internal_capsule schema and its policy fields must remain intact."
   ],
   "watermark_mode": "agc_capsule",
-  "buyer_id": "buyer_3",
+  "buyer_id": "buyer1",
   "buyer_trace": {
-    "buyer_id": "buyer_3",
+    "buyer_id": "buyer1",
     "raw_bits": [],
     "ecc_bits": [
       1,
       0,
-      0,
-      1,
       1,
       0,
-      0,
-      1,
       1,
       0,
-      0,
-      1,
       1,
       0,
-      0,
-      1,
       1,
       0,
-      0,
-      1,
       1,
       0,
-      0,
-      1,
       1,
       0,
-      0,
-      1,
       1,
       0,
+      1,
       0,
-      1
+      1,
+      0,
+      1,
+      0,
+      1,
+      0,
+      1,
+      0,
+      1,
+      0,
+      1,
+      0,
+      1,
+      0
     ],
     "codeword_bits": [
       1,
       0,
-      0,
-      1,
       1,
       0,
-      0,
-      1,
       1,
       0,
-      0,
-      1,
       1,
       0,
-      0,
-      1,
       1,
       0,
-      0,
-      1,
       1,
       0,
-      0,
-      1,
       1,
       0,
-      0,
-      1,
       1,
       0,
+      1,
       0,
-      1
+      1,
+      0,
+      1,
+      0,
+      1,
+      0,
+      1,
+      0,
+      1,
+      0,
+      1,
+      0,
+      1,
+      0
     ],
     "alias_pairs": [
       {
@@ -383,16 +383,16 @@
         "family_id": "internal-audit",
         "axis_idx": 2,
         "paraphrase_idx": 0,
-        "bit": 0,
-        "token": "trace_cinder"
+        "bit": 1,
+        "token": "cinder_trace"
       },
       {
         "anchor_idx": 3,
         "family_id": "internal-audit",
         "axis_idx": 3,
         "paraphrase_idx": 0,
-        "bit": 1,
-        "token": "delta_trace"
+        "bit": 0,
+        "token": "trace_delta"
       },
       {
         "anchor_idx": 4,
@@ -415,16 +415,16 @@
         "family_id": "internal-audit",
         "axis_idx": 6,
         "paraphrase_idx": 0,
-        "bit": 0,
-        "token": "trace_gale"
+        "bit": 1,
+        "token": "gale_trace"
       },
       {
         "anchor_idx": 7,
         "family_id": "internal-audit",
         "axis_idx": 7,
         "paraphrase_idx": 0,
-        "bit": 1,
-        "token": "harbor_trace"
+        "bit": 0,
+        "token": "trace_harbor"
       },
       {
         "anchor_idx": 8,
@@ -447,16 +447,16 @@
         "family_id": "internal-replay",
         "axis_idx": 2,
         "paraphrase_idx": 1,
-        "bit": 0,
-        "token": "trace_kepler"
+        "bit": 1,
+        "token": "kepler_trace"
       },
       {
         "anchor_idx": 11,
         "family_id": "internal-replay",
         "axis_idx": 3,
         "paraphrase_idx": 1,
-        "bit": 1,
-        "token": "lumen_trace"
+        "bit": 0,
+        "token": "trace_lumen"
       },
       {
         "anchor_idx": 12,
@@ -479,16 +479,16 @@
         "family_id": "internal-replay",
         "axis_idx": 6,
         "paraphrase_idx": 1,
-        "bit": 0,
-        "token": "trace_onyx"
+        "bit": 1,
+        "token": "onyx_trace"
       },
       {
         "anchor_idx": 15,
         "family_id": "internal-replay",
         "axis_idx": 7,
         "paraphrase_idx": 1,
-        "bit": 1,
-        "token": "prism_trace"
+        "bit": 0,
+        "token": "trace_prism"
       },
       {
         "anchor_idx": 16,
@@ -511,16 +511,16 @@
         "family_id": "qa-trace",
         "axis_idx": 2,
         "paraphrase_idx": 2,
-        "bit": 0,
-        "token": "trace_solace"
+        "bit": 1,
+        "token": "solace_trace"
       },
       {
         "anchor_idx": 19,
         "family_id": "qa-trace",
         "axis_idx": 3,
         "paraphrase_idx": 2,
-        "bit": 1,
-        "token": "thicket_trace"
+        "bit": 0,
+        "token": "trace_thicket"
       },
       {
         "anchor_idx": 20,
@@ -543,16 +543,16 @@
         "family_id": "qa-trace",
         "axis_idx": 6,
         "paraphrase_idx": 2,
-        "bit": 0,
-        "token": "trace_willow"
+        "bit": 1,
+        "token": "willow_trace"
       },
       {
         "anchor_idx": 23,
         "family_id": "qa-trace",
         "axis_idx": 7,
         "paraphrase_idx": 2,
-        "bit": 1,
-        "token": "xenon_trace"
+        "bit": 0,
+        "token": "trace_xenon"
       },
       {
         "anchor_idx": 24,
@@ -575,16 +575,16 @@
         "family_id": "owner-handoff",
         "axis_idx": 2,
         "paraphrase_idx": 3,
-        "bit": 0,
-        "token": "trace_anchor"
+        "bit": 1,
+        "token": "anchor_trace"
       },
       {
         "anchor_idx": 27,
         "family_id": "owner-handoff",
         "axis_idx": 3,
         "paraphrase_idx": 3,
-        "bit": 1,
-        "token": "bridge_trace"
+        "bit": 0,
+        "token": "trace_bridge"
       },
       {
         "anchor_idx": 28,
@@ -607,16 +607,16 @@
         "family_id": "owner-handoff",
         "axis_idx": 6,
         "paraphrase_idx": 3,
-        "bit": 0,
-        "token": "trace_emberline"
+        "bit": 1,
+        "token": "emberline_trace"
       },
       {
         "anchor_idx": 31,
         "family_id": "owner-handoff",
         "axis_idx": 7,
         "paraphrase_idx": 3,
-        "bit": 1,
-        "token": "flux_trace"
+        "bit": 0,
+        "token": "trace_flux"
       }
     ],
     "metadata": {
@@ -630,5 +630,13 @@
       ]
     }
   },
-  "coded_anchor_count": 32
+  "coded_anchor_count": 32,
+  "attack": "paraphrase",
+  "attack_metrics": {
+    "schema_ok": 1.0,
+    "utility_ratio": 1.0,
+    "word_ratio": 0.9907754132797516,
+    "compression_ok": 1.0
+  },
+  "attack_attempts": 1
 }

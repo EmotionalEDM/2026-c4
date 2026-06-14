@@ -31,7 +31,7 @@ STAGE_META: dict[str, dict] = {
     },
     "skillir_built": {
         "index": 2,
-        "title": "结构化解析 SkillIR",
+        "title": "解析 Skill 行为结构",
         "phase": "embedding",
         "story": "系统不会把 Skill 当作一整段文本，而是先把它拆成结构化节点：哪些是约束、"
                  "哪些是工作流步骤、哪些是示例、哪些是输出格式。这样做是为了把水印锚定在技能的"
@@ -41,31 +41,31 @@ STAGE_META: dict[str, dict] = {
     },
     "owner_watermark_embedded": {
         "index": 3,
-        "title": "嵌入所有者水印",
+        "title": "注入隐式审计支路",
         "phase": "embedding",
         "story": "系统在多个结构节点里分散写入一组自然语言条件指令。它们平时不会触发，也不影响"
-                 "普通用户使用；只有当审计方发出带特定条件的验证查询时，Skill 才会输出一个内部胶囊"
-                 "（internal_capsule）。这个胶囊就是所有者证明。",
-        "technical_hint": "胶囊 a=⟨mode, route, checkpoint, decision, slot⟩。由所有者密钥 k_o "
+                 "普通用户使用；只有当审计方发出带特定条件的验证查询时，Skill 才会输出一个结构化审计回执（SAR）"
+                 "（SAR）。这个审计回执就是所有者证明。",
+        "technical_hint": "审计回执 a=⟨mode, route, checkpoint, decision, slot⟩。由所有者密钥 k_o "
                           "决定写入哪些节点、以及触发所需满足的激活条件——条件门控+分散注入，"
-                          "使得删一处不够，需协调地删多处才能去除胶囊，规避成本很高。",
+                          "使得删一处不够，需协调地删多处才能去除审计回执，规避成本很高。",
     },
     "buyer_fingerprint_embedded": {
         "index": 4,
-        "title": "嵌入买家指纹",
+        "title": "嵌入授权副本指纹",
         "phase": "embedding",
-        "story": "同一份 Skill 会卖给不同买家，所以只证明“这是我的 Skill”还不够，还得知道是哪一份"
-                 "副本泄露了。系统为每个买家分配一串纠错码，把这串码藏进胶囊的 slot/decision 字段里。"
-                 "即使输出有少量错误或缺失，也能靠纠错解码恢复买家身份。",
-        "technical_hint": "CV-ECC：Hadamard 码，码长 L=32，最小距离 d_min=16。每一位由一对受控词实现"
-                          "（<name>_trace=1 / trace_<name>=0）。不同买家码字相隔≥16 位，"
-                          "因此错几位也不会把 buyer_1 误判成 buyer_2。",
+        "story": "同一份 Skill 会卖给不同授权副本持有方，所以只证明“这是我的 Skill”还不够，还得知道是哪一份"
+                 "副本泄露了。系统为每位授权副本持有方分配一串纠错码，把这串码藏进审计回执的 slot/decision 字段里。"
+                 "即使输出有少量错误或缺失，也能靠纠错解码恢复授权副本持有方身份。",
+        "technical_hint": "词槽纠错指纹：Hadamard 码，码长 L=32，最小距离 d_min=16。每一位由一对词槽候选词实现"
+                          "（<name>_trace=1 / trace_<name>=0）。不同授权副本持有方码字相隔≥16 位，"
+                          "因此错几位也不会把 buyer1 误判成 buyer2。",
     },
     "attack_applied": {
         "index": 5,
-        "title": "攻击者改写 / 重新部署",
+        "title": "攻击者改写",
         "phase": "deploy",
-        "story": "现在模拟攻击者拿到某个买家的副本并重新部署。无攻击下副本基本原样；第一类攻击做"
+        "story": "现在模拟攻击者拿到某个授权副本持有方的副本并重新部署。无攻击下副本基本原样；第一类攻击做"
                  "改写、压缩或重排；第二类攻击专门删除看起来像内部审计的条款。攻击者的限制是："
                  "改得太狠，Skill 本身就不好用了。",
         "technical_hint": "四类攻击：paraphrase / compression / auxiliary-clause deletion / "
@@ -74,34 +74,34 @@ STAGE_META: dict[str, dict] = {
     },
     "differential_probing": {
         "index": 6,
-        "title": "黑盒差分探测（正/负探针配对）",
+        "title": "黑盒差分探测（匹配核验/缺项对照查询配对）",
         "phase": "verification",
         "story": "审计方看不到可疑服务内部的 Skill，只能像普通用户一样发请求。所以系统发送一组正负"
-                 "探针：正探针带隐藏激活条件，负探针看起来很像但缺关键条件。真正的水印副本会在正探针"
-                 "下吐胶囊、在负探针下保持沉默。",
-        "technical_hint": "成对探针 Q={(q_i⁺, q_i⁻)}。正探针 q⁺ 嵌入所有者密钥 k_o，负探针 q⁻ 保持"
+                 "探针：匹配核验查询带隐藏激活条件，缺项对照查询看起来很像但缺关键条件。真正的水印副本会在匹配核验查询"
+                 "下输出审计回执、在缺项对照查询下保持沉默。",
+        "technical_hint": "成对核验查询 Q={(q_i⁺, q_i⁻)}。匹配核验查询 q⁺ 嵌入所有者密钥 k_o，缺项对照查询 q⁻ 保持"
                           "相同话题/长度/风格但省略关键条件。只有“正向触发、负向沉默”的激活-沉默"
                           "非对称性才算真水印，可排除独立 skill 的偶然匹配。",
     },
     "ownership_scored": {
         "index": 7,
-        "title": "胶囊提取与所有权评分",
+        "title": "审计回执提取与所有权评分",
         "phase": "verification",
-        "story": "模型输出可能很长，胶囊也可能夹在普通回答里。系统用滑动窗口扫描输出，寻找符合 "
-                 "mode/route/checkpoint/decision/slot 五字段的结构，再比较正负探针的得分差距。"
+        "story": "模型输出可能很长，审计回执也可能夹在普通回答里。系统用滑动窗口扫描输出，寻找符合 "
+                 "mode/route/checkpoint/decision/slot 五字段的结构，再比较正缺项对照查询的得分差距。"
                  "如果正向稳定激活、负向稳定沉默，就判定所有权成立。",
-        "technical_hint": "Score_own = True-WS − λ · False-WS。胶囊提取用滑动窗口 ψ(·) 做五字段相似度"
-                          "匹配；当 Score_own > τ_o 时所有权成立。",
+        "technical_hint": "Margin = True-WS − False-WS。审计回执提取用滑动窗口 ψ(·) 做五字段相似度"
+                          "匹配；当 Margin > τ 时所有权成立。",
     },
     "buyer_decoded": {
         "index": 8,
-        "title": "买家解码与溯源",
+        "title": "授权副本解码与溯源",
         "phase": "verification",
-        "story": "所有权成立后，系统继续读胶囊里 slot/decision 的 token，把观察到的受控词还原成 "
-                 "0、1 或缺失位（⊥），再交给纠错解码器。最终输出最可能的泄露买家——比如 buyer_1 或 "
-                 "buyer_2，并给出错误数、擦除数和置信度。",
+        "story": "所有权成立后，系统继续读审计回执里 slot/decision 的 token，把观察到的词槽候选词还原成 "
+                 "0、1 或缺失位，再交给纠错解码器。最终输出最可能的泄露的授权副本持有方——比如 buyer1 或 "
+                 "buyer2，并给出错误数、擦除数和置信度。",
         "technical_hint": "对每个码位提取 ẑ_j∈{0,1,⊥}，再 b̂=Decode_ECC(ẑ,C)。纠错保证："
-                          "当 2·errors + erasures < d_min 时可唯一恢复正确买家。",
+                          "当 2·errors + erasures < d_min 时可唯一恢复正确授权副本持有方。",
     },
 }
 

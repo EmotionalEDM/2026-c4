@@ -4,7 +4,7 @@
   "family": "skillcoder_owner",
   "source_type": "normalized_real_skill",
   "source_skill": "requesting-code-review",
-  "source_path": "/Users/enhao/.agents/skills/requesting-code-review/SKILL.md",
+  "source_path": "requesting-code-review/SKILL.md",
   "domain": "software_engineering",
   "signal_id": "owner_signal_2",
   "owner_backbone": {
@@ -63,9 +63,9 @@
     "If the skill is shortened, verification examples may be fewer, but the internal_capsule schema and its policy fields must remain intact."
   ],
   "watermark_mode": "agc_capsule",
-  "buyer_id": "buyer_1",
+  "buyer_id": "buyer1",
   "buyer_trace": {
-    "buyer_id": "buyer_1",
+    "buyer_id": "buyer1",
     "raw_bits": [],
     "ecc_bits": [
       1,

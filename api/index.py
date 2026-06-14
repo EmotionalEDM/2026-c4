@@ -1,6 +1,7 @@
 """Vercel serverless entrypoint — wraps the full FastAPI backend with Mangum.
 
 All /api/* requests are rewritten to this handler by vercel.json.
+Mangum ensures the original request path is preserved through Vercel's rewrite layer.
 """
 import sys
 from pathlib import Path
@@ -13,4 +14,4 @@ if _project_root not in sys.path:
 from mangum import Mangum
 from backend.app.main import app
 
-handler = Mangum(app)
+handler = Mangum(app, lifespan="off")
