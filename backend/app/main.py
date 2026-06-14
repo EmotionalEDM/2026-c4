@@ -41,8 +41,8 @@ app.add_middleware(
 # ---------------------------------------------------------------------------
 
 
-@app.get("/")
-def root():
+@app.get("/api")
+def api_root():
     return {
         "service": "demo backend",
         "version": config.DEMO_VERSION,
@@ -226,9 +226,9 @@ def metrics_overview():
 
 
 # ---------------------------------------------------------------------------
-# 前端静态托管：若同仓库存在 frontend/ 目录，则在 /ui 提供页面（一条命令跑通整套）
-# 访问 http://127.0.0.1:8000/ui/
+# 前端静态托管：Vercel 上所有非 /api/* 请求由 FastAPI 直接返回静态文件。
+# 本地开发：访问 http://127.0.0.1:8000/ 即为前端页面。
 # ---------------------------------------------------------------------------
 _FRONTEND_DIR = Path(__file__).resolve().parents[2] / "frontend"
 if _FRONTEND_DIR.exists():
-    app.mount("/ui", StaticFiles(directory=str(_FRONTEND_DIR), html=True), name="ui")
+    app.mount("/", StaticFiles(directory=str(_FRONTEND_DIR), html=True), name="frontend")
